@@ -1,4 +1,4 @@
-# Cigsmoke TypeScript & Express.js & TypeORM Application
+# fingraden TypeScript & Express.js & TypeORM Application
 
 ## Dependencies
 
