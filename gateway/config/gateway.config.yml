@@ -1,0 +1,154 @@
+http:
+  port: ${PORT}
+admin:
+  port: 9876
+  host: localhost
+apiEndpoints:
+  auth:
+    host: localhost
+    paths: ['/users*', '/auth*', '/admin*']
+  catalog:
+    host: localhost
+    paths: ['/products*', '/tags*', '/sizes*', '/categories*', '/brands*', '/colors*', '/parameters*']
+  images:
+    host: localhost
+    paths: ['/images*']
+  orders:
+    host: localhost
+    paths: ['/addresses*', '/baskets*', '/checkouts*', '/order-products*', '/payments*']
+  reviews:
+    host: localhost
+    paths: ['/reviews*', '/comments*']
+  questions:
+    host: localhost
+    paths: ['/questions*', '/question-comments*']
+  swagger:
+    host: localhost
+    paths: ['/api-docs*']
+  wishlists:
+    host: localhost
+    paths: ['/wishlists*']
+  banners:
+    host: localhost
+    paths: ['/slides*', '/advertisements*']
+  analytics:
+    host: localhost
+    paths: ['/analytics*']
+  mailer:
+    host: localhost
+    paths: ['/subscribe*', '/mailings*']
+serviceEndpoints:
+  authSrv:
+    url: ${AUTH_DB}
+  catalogSrv:
+    url: ${CATALOG_DB}
+  imagesSrv:
+    url: ${IMAGES_DB}
+  ordersSrv:
+    url: ${ORDERS_DB}
+  reviewsSrv:
+    url: ${REVIEWS_DB}
+  questionsSrv:
+    url: ${QUESTIONS_DB}
+  swaggerSrv:
+    url: ${SWAGGER_DB}
+  wishlistsSrv:
+    url: ${WISHLISTS_DB}
+  bannersSrv:
+    url: ${BANNERS_DB}
+  analyticsSrv:
+    url: ${ANALYTICS_DB}
+  mailerSrv:
+    url: ${MAILER_DB}
+policies:
+  - cors
+  - proxy
+pipelines:
+  pipeAuth:
+    apiEndpoints:
+      - auth
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: authSrv
+              changeOrigin: true
+  pipeCatalog:
+    apiEndpoints:
+      - catalog
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: catalogSrv
+              changeOrigin: true
+  pipeImages:
+    apiEndpoints:
+      - images
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: imagesSrv
+              changeOrigin: true
+  pipeOrders:
+    apiEndpoints:
+      - orders
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: ordersSrv
+              changeOrigin: true
+  pipeReviews:
+    apiEndpoints:
+      - reviews
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: reviewsSrv
+              changeOrigin: true
+  pipeQuestions:
+    apiEndpoints:
+      - questions
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: questionsSrv
+              changeOrigin: true
+  pipeSwagger:
+    apiEndpoints:
+      - swagger
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: swaggerSrv
+              changeOrigin: true
+  pipeWishlists:
+    apiEndpoints:
+      - wishlists
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: wishlistsSrv
+              changeOrigin: true
+  pipeBanner:
+    apiEndpoints:
+      - banners
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: bannersSrv
+              changeOrigin: true
+  pipeAnalytic:
+    apiEndpoints:
+      - analytics
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: analyticsSrv
+              changeOrigin: true
+  pipeMailer:
+    apiEndpoints:
+      - mailer
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: mailerSrv
+              changeOrigin: true
