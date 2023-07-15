@@ -17,7 +17,48 @@ import { UserService } from '../services/user.service';
 @singleton()
 @Controller('/auth')
 export class AuthController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) {
+    (async () => {
+      const admin = await this.userService.getAdmin();
+      if (!admin) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPass = await bcrypt.hash('arm12345', salt);
+        await this.userService.createUser({
+          firstName: 'admin',
+          lastName: 'admin',
+          isVerified: true,
+          email: 'admin@admin.ru',
+          password: hashedPass,
+          role: Role.Admin,
+        } as any);
+      }
+    })();
+  }
+
+  @Get('init-admin')
+  async initAdmin(req: Request, resp: Response) {
+    const admin = await this.userService.getAdmin();
+
+    if (!admin) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPass = await bcrypt.hash('arm12345', salt);
+
+      const user = await this.userService.createUser({
+        firstName: 'admin',
+        lastName: 'admin',
+        isVerified: true,
+        email: 'admin@admin.ru',
+        password: hashedPass,
+        role: Role.Admin,
+      } as any);
+
+      resp.status(HttpStatus.CREATED).json({ user });
+
+      return;
+    }
+
+    resp.status(HttpStatus.CREATED).json({ info: 'already exists', user: admin });
+  }
 
   @Post('signup')
   async signUp(req: Request, resp: Response) {
@@ -200,8 +241,7 @@ export class AuthController {
           email: user.email,
           password: hashedPass,
           isVerified: user.isVerified ? true : false,
-          role:
-            decoded.role !== Role.Admin ? (decoded.role !== Role.SuperUser ? Role.User : Role.SuperUser) : Role.Admin,
+          role: decoded.role !== Role.Admin ? Role.User : Role.Admin,
         };
 
         await this.userService.updateUser(decoded.id, payload);
@@ -250,8 +290,7 @@ export class AuthController {
           email: user.email,
           password: user.password,
           isVerified: true,
-          role:
-            decoded.role !== Role.Admin ? (decoded.role !== Role.SuperUser ? Role.User : Role.SuperUser) : Role.Admin,
+          role: decoded.role !== Role.Admin ? Role.User : Role.Admin,
         };
 
         await this.userService.updateUser(decoded.id, payload);

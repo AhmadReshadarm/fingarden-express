@@ -1,15 +1,13 @@
 {
-  "name": "cigsmoke",
+  "name": "Fingarden",
   "version": "1.0.0",
-  "description": "Cigsmoke app with typescript + express.js + typeorm",
+  "description": "Fingarden app with typescript + express.js + typeorm",
   "scripts": {
-    "analytics:dev": "cd ./analytics && npm run dev",
     "auth:dev": "cd ./authorization && npm run dev",
     "banners:dev": "cd ./banners && npm run dev",
     "catalog:dev": "cd ./catalog && npm run dev",
     "gateway:start": "cd ./gateway && npm run start",
     "images:dev": "cd ./images && npm run dev",
-    "mailer:start": "cd ./mailer && npm run start",
     "orders:dev": "cd ./orders && npm run dev",
     "questions:dev": "cd ./questions && npm run dev",
     "reviews:dev": "cd ./reviews && npm run dev",

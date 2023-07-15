@@ -146,7 +146,7 @@ export class UserController {
         email: email ?? user.email,
         password: user.password,
         isVerified: user.isVerified ? (email ? false : true) : false,
-        role: jwt.role !== Role.Admin ? (jwt.role !== Role.SuperUser ? Role.User : Role.SuperUser) : Role.Admin,
+        role: jwt.role !== Role.Admin ? Role.User : Role.Admin,
       });
       const { password, ...others } = updated;
       resp.status(HttpStatus.OK).json({ user: { ...others } });
@@ -183,7 +183,7 @@ export class UserController {
         email: user.email,
         password: hashedPass,
         isVerified: user.isVerified ? true : false,
-        role: jwt.role !== Role.Admin ? (jwt.role !== Role.SuperUser ? Role.User : Role.SuperUser) : Role.Admin,
+        role: jwt.role !== Role.Admin ? Role.User : Role.Admin,
       };
 
       await this.userService.updateUser(id, payload);
