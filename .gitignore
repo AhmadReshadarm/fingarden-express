@@ -17,6 +17,6 @@ test.http
 http-client.env.json
 tes.json
 package-lock.json
-
+/**/package-lock.json
 #cache
 /**/webprojnpm-cache
