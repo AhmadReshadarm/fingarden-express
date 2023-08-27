@@ -4,7 +4,7 @@ import { ColorController } from './colors/color.controller';
 import { ProductController } from './products/product.controller';
 import { TagController } from './tags/tag.controller';
 import { SizeController } from './sizes/size.controller';
-import { ForyouController } from './foryou/foryou.controller';
+// import { ForyouController } from './foryou/foryou.controller';
 
 const loadControllers = () => {
   return [
@@ -14,7 +14,7 @@ const loadControllers = () => {
     BrandController,
     TagController,
     SizeController,
-    ForyouController,
+    // ForyouController,
   ];
 };
 

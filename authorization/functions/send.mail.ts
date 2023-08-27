@@ -7,7 +7,7 @@ const sendMail = (token: any, user: any) => {
     port: 465,
     secure: true,
     auth: {
-      user: 'info@wuluxe.ru',
+      user: 'info@fingarden.ru',
       pass: process.env.EMAIL_SERVICE_SECRET_KEY,
     },
     tls: {
@@ -15,11 +15,11 @@ const sendMail = (token: any, user: any) => {
       rejectUnauthorized: false,
     },
   });
-  const url = `https://wuluxe.ru/profile/verify/${token}`;
+  const url = `https://fingarden.ru/profile/verify/${token}`;
   transporter.sendMail(
     {
       to: user.email,
-      from: 'info@wuluxe.ru',
+      from: 'info@fingarden.ru',
       subject: `Подтверждать ${user.email}`,
       html: signupEmailTemplate(user.firstName, user.email, url),
     },
@@ -38,7 +38,7 @@ const sendMailResetPsw = (token: any, user: any) => {
     port: 465,
     secure: true,
     auth: {
-      user: 'info@wuluxe.ru',
+      user: 'info@fingarden.ru',
       pass: process.env.EMAIL_SERVICE_SECRET_KEY,
     },
     tls: {
@@ -46,11 +46,11 @@ const sendMailResetPsw = (token: any, user: any) => {
       rejectUnauthorized: false,
     },
   });
-  const url = `https://wuluxe.ru/profile/pswreset/confirmpsw/${token}`;
+  const url = `https://fingarden.ru/profile/pswreset/confirmpsw/${token}`;
   transporter.sendMail(
     {
       to: user.email,
-      from: 'info@wuluxe.ru',
+      from: 'info@fingarden.ru',
       subject: `Сбросить пароль для ${user.email}`,
       html: resetPswEmailTemplate(user.firstName, user.email, url),
     },

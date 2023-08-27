@@ -143,10 +143,12 @@ export class ProductService {
   }
 
   async createParameters(parameters: ParameterProducts[], id: string) {
-    parameters.map(async parameter => {
-      parameter.productId = id;
-      return await this.parameterProductsRepository.save(parameter);
-    });
+    await Promise.all(
+      parameters.map(async parameter => {
+        parameter.productId = id;
+        return await this.parameterProductsRepository.save(parameter);
+      }),
+    );
   }
 
   async createProductVariant(variant: ProductVariant, product: Product) {
@@ -184,9 +186,11 @@ export class ProductService {
     const created = await this.productRepository.save(new Product(newProduct));
 
     if (newProduct.productVariants) {
-      newProduct.productVariants.map(async variant => {
-        await this.createProductVariant(variant, created);
-      });
+      await Promise.all(
+        newProduct.productVariants.map(async variant => {
+          await this.createProductVariant(variant, created);
+        }),
+      );
     }
 
     if (newProduct.parameterProducts) {
@@ -215,9 +219,11 @@ export class ProductService {
       await validation(parameterProducts);
 
       if (product.parameterProducts) {
-        product.parameterProducts.map(async parameterProduct => {
-          await this.parameterProductsRepository.remove(parameterProduct);
-        });
+        await Promise.all(
+          product.parameterProducts.map(async parameterProduct => {
+            await this.parameterProductsRepository.remove(parameterProduct);
+          }),
+        );
       }
 
       await this.createParameters(parameterProducts, product.id);
