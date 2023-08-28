@@ -142,14 +142,20 @@ export class ProductService {
     return this.mergeProduct(product);
   }
 
-  async createParameters(parameters: ParameterProducts[], id: string) {
-    await Promise.all(
-      parameters.map(async parameter => {
-        parameter.productId = id;
-        return await this.parameterProductsRepository.save(parameter);
-      }),
-    );
-  }
+  // async createParameters(parameters: ParameterProducts[], id: string) {
+  //   parameters.map(async parameter => {
+  //     parameter.productId = id;
+  //     return await this.parameterProductsRepository.save(parameter);
+  //   });
+  // }
+  createParameters = async (parameters: ParameterProducts[], id: string, counter: number) => {
+    if (parameters.length > counter) {
+      parameters[counter].productId = id;
+      await this.parameterProductsRepository.save(parameters[counter]);
+      counter = counter + 1;
+      this.createParameters(parameters, id, counter);
+    }
+  };
 
   async createProductVariant(variant: ProductVariant, product: Product) {
     variant.product = product;
@@ -184,17 +190,26 @@ export class ProductService {
     }
 
     const created = await this.productRepository.save(new Product(newProduct));
-
+    let counter = 0;
     if (newProduct.productVariants) {
-      await Promise.all(
-        newProduct.productVariants.map(async variant => {
-          await this.createProductVariant(variant, created);
-        }),
-      );
+      // newProduct.productVariants.map(async variant => {
+      //   await this.createProductVariant(variant, created);
+      // });
+      counter = 0;
+
+      const addAllVariants = async (variants: ProductVariant[], product: Product) => {
+        if (variants.length > counter) {
+          await this.createProductVariant(variants[counter], product);
+          counter = counter + 1;
+          addAllVariants(variants, product);
+        }
+      };
+      addAllVariants(newProduct.productVariants, created);
     }
 
     if (newProduct.parameterProducts) {
-      await this.createParameters(newProduct.parameterProducts, created.id);
+      counter = 0;
+      await this.createParameters(newProduct.parameterProducts, created.id, counter);
     }
 
     return created;
@@ -225,8 +240,8 @@ export class ProductService {
           }),
         );
       }
-
-      await this.createParameters(parameterProducts, product.id);
+      let counter = 0;
+      await this.createParameters(parameterProducts, product.id, counter);
     }
 
     let variants: ProductVariant[] = [];

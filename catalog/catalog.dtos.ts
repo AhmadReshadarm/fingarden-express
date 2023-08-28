@@ -102,7 +102,7 @@ export interface ProductDTO {
   readonly name: string;
   readonly price: number;
   readonly oldPrice?: number;
-  readonly wholeSalePrice?: number;
+  // readonly wholeSalePrice?: number;
   readonly desc: string | null;
   readonly available: boolean;
   readonly createdAt: Date;
