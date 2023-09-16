@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { singleton } from 'tsyringe';
-import {  } from '../../core/lib/error.handlers';
+import {} from '../../core/lib/error.handlers';
 import { HttpStatus } from '../../core/lib/http-status';
 import { TagService } from './tag.service';
 import { Controller, Delete, Get, Middleware, Post, Put } from '../../core/decorators';
@@ -13,9 +13,13 @@ export class TagController {
 
   @Get()
   async getTags(req: Request, resp: Response) {
-    const tags = await this.tagService.getTags(req.query);
+    try {
+      const tags = await this.tagService.getTags(req.query);
 
-    resp.json(tags);
+      resp.json(tags);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong: ${error}` });
+    }
   }
 
   @Get(':id')
