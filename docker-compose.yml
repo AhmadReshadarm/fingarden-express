@@ -80,20 +80,20 @@ services:
     command: sh -c 'wait-for db:3306 -- npm run start'
     depends_on:
       - db
-  analytics:
-    build:
-      context: .
-      dockerfile: ./analytics/Dockerfile
-    command: sh -c 'wait-for db:3306 -- npm run start'
-    depends_on:
-      - db
-  mailer:
-    build:
-      context: .
-      dockerfile: ./mailer/Dockerfile
-    command: sh -c 'wait-for db:3306 -- npm run start'
-    depends_on:
-      - db
+  # analytics:
+  #   build:
+  #     context: .
+  #     dockerfile: ./analytics/Dockerfile
+  #   command: sh -c 'wait-for db:3306 -- npm run start'
+  #   depends_on:
+  #     - db
+  # mailer:
+  #   build:
+  #     context: .
+  #     dockerfile: ./mailer/Dockerfile
+  #   command: sh -c 'wait-for db:3306 -- npm run start'
+  #   depends_on:
+  #     - db
   swagger:
     build:
       context: .
