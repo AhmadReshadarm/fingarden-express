@@ -1,4 +1,5 @@
 http:
+  'hostname': '0.0.0.0'
   port: ${PORT}
 admin:
   port: 9876
