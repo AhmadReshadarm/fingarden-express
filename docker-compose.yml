@@ -29,57 +29,57 @@ services:
     command: sh -c 'wait-for db:3306 -- npm run start'
     depends_on:
       - db
-  # orders:
-  #   build:
-  #     context: .
-  #     dockerfile: ./orders/Dockerfile
-  #   command: sh -c 'wait-for db:3306 -- npm run start'
-  #   depends_on:
-  #     - db
-  # catalog:
-  #   build:
-  #     context: .
-  #     dockerfile: ./catalog/Dockerfile
-  #   command: sh -c 'wait-for db:3306 -- npm run start'
-  #   depends_on:
-  #     - db
-  # images:
-  #   build:
-  #     context: .
-  #     dockerfile: ./images/Dockerfile
-  #   command: sh -c 'wait-for db:3306 -- npm run start'
-  #   depends_on:
-  #     - db
-  #   volumes:
-  #     - images_data:/app/images/files
-  # reviews:
-  #   build:
-  #     context: .
-  #     dockerfile: ./reviews/Dockerfile
-  #   command: sh -c 'wait-for db:3306 -- npm run start'
-  #   depends_on:
-  #     - db
-  # questions:
-  #   build:
-  #     context: .
-  #     dockerfile: ./questions/Dockerfile
-  #   command: sh -c 'wait-for db:3306 -- npm run start'
-  #   depends_on:
-  #     - db
-  # wishlists:
-  #   build:
-  #     context: .
-  #     dockerfile: ./wishlists/Dockerfile
-  #   command: sh -c 'wait-for db:3306 -- npm run start'
-  #   depends_on:
-  #     - db
-  # banners:
-  #   build:
-  #     context: .
-  #     dockerfile: ./banners/Dockerfile
-  #   command: sh -c 'wait-for db:3306 -- npm run start'
-  #   depends_on:
-  #     - db
+  orders:
+    build:
+      context: .
+      dockerfile: ./orders/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
+  catalog:
+    build:
+      context: .
+      dockerfile: ./catalog/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
+  images:
+    build:
+      context: .
+      dockerfile: ./images/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
+    volumes:
+      - images_data:/app/images/files
+  reviews:
+    build:
+      context: .
+      dockerfile: ./reviews/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
+  questions:
+    build:
+      context: .
+      dockerfile: ./questions/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
+  wishlists:
+    build:
+      context: .
+      dockerfile: ./wishlists/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
+  banners:
+    build:
+      context: .
+      dockerfile: ./banners/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
   # analytics:
   #   build:
   #     context: .
