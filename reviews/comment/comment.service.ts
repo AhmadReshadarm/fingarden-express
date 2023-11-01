@@ -121,13 +121,27 @@ export class CommentService {
       ...comment,
       ...others,
     };
+    this.isUserCommentOwner(newComment, user);
+    await this.commentRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        text: commentDTO.text,
+      })
+      .where('id = :id', { id: id })
+      .execute();
+    const queryBuilder = this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.review', 'review')
+      .leftJoinAndSelect('comment.reactions', 'reactions');
+    if (reviewId) {
+      queryBuilder.andWhere('review.id = :id', { id: reviewId });
+    }
 
-    newComment.userId = typeof comment.user === 'string' ? comment.user : comment.user.id;
-
-    await this.isUserCommentOwner(newComment, user);
-    await this.commentRepository.remove(comment as any);
-
-    return this.commentRepository.save(newComment);
+    queryBuilder.orderBy(`comment.createdAt`, 'ASC').skip(0).take(1000);
+    const comments = await queryBuilder.getMany();
+    const result = comments.map(async comment => await this.mergeCommentUserId(comment, ''));
+    return await Promise.all(result);
   }
 
   async removeComment(id: string, user: UserAuth) {

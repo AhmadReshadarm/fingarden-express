@@ -63,4 +63,35 @@ const sendMailResetPsw = (token: any, user: any) => {
   );
 };
 
-export { sendMail, sendMailResetPsw };
+const sendHelpDiskMail = (userEmail: string, adminEmail: string, text: string) => {
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.beget.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'info@fingarden.ru',
+      pass: process.env.EMAIL_SERVICE_SECRET_KEY,
+    },
+    tls: {
+      // do not fail on invalid certs
+      rejectUnauthorized: false,
+    },
+  });
+
+  transporter.sendMail(
+    {
+      to: adminEmail,
+      from: 'info@fingarden.ru',
+      subject: `Вопрос от ${userEmail}`,
+      html: `<p>Вопрос от <a href="mailto:${userEmail}">${userEmail}</a>:</p></br><p>${text}</p>`,
+    },
+    (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Message sent: %s', info.messageId);
+    },
+  );
+};
+
+export { sendMail, sendMailResetPsw, sendHelpDiskMail };

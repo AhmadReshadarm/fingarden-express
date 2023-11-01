@@ -11,7 +11,10 @@ export class WishlistService {
   private wishlistRepository: Repository<Wishlist>;
   private wishlistProductRepository: Repository<WishlistProduct>;
 
-  constructor(dataSource: DataSource, private wishlistProductService: WishlistProductService) {
+  constructor(
+    dataSource: DataSource,
+    private wishlistProductService: WishlistProductService,
+  ) {
     this.wishlistRepository = dataSource.getRepository(Wishlist);
     this.wishlistProductRepository = dataSource.getRepository(WishlistProduct);
   }
@@ -82,7 +85,7 @@ export class WishlistService {
         productId: Equal(productId),
         wishlist: {
           id: Equal(wishlist.id),
-        }
+        },
       });
 
       if (!wishlistProduct) {
@@ -92,9 +95,20 @@ export class WishlistService {
       }
     }
 
+    const products = [];
+
+    for (const item of items) {
+      const product = await this.getProductById(item.productId);
+
+      if (product) {
+        products.push(product);
+      }
+    }
+
     return {
       ...wishlist,
       items,
+      products,
     };
   }
 
@@ -108,7 +122,7 @@ export class WishlistService {
     return this.wishlistRepository.remove(wishlist);
   }
 
-  async getWishlistProducts(id: string): Promise<ProductDTO[]> {
+  async getWishlistProducts(id: string) {
     const wishlist = await this.getWishlist(id);
     const products = [];
 
@@ -120,6 +134,9 @@ export class WishlistService {
       }
     }
 
-    return products;
+    return {
+      ...wishlist,
+      products,
+    };
   }
 }

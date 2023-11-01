@@ -3,7 +3,7 @@ import { Column, Entity, JoinTable, ManyToOne, OneToMany, PrimaryGeneratedColumn
 import { OrderProduct } from '../orders';
 import { Color } from './color.entity';
 import { Product } from './product.entity';
-
+import { Size } from './size.entity';
 @Entity()
 export class ProductVariant {
   @PrimaryGeneratedColumn()
@@ -25,7 +25,7 @@ export class ProductVariant {
   available: boolean;
 
   @IsNotEmpty()
-  @ManyToOne(() => Color, color => color.productVariants, { cascade: true, nullable: false })
+  @ManyToOne(() => Color, color => color.productVariants, { cascade: true, nullable: true })
   @JoinTable()
   color: Color;
 

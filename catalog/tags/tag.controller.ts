@@ -5,11 +5,14 @@ import { HttpStatus } from '../../core/lib/http-status';
 import { TagService } from './tag.service';
 import { Controller, Delete, Get, Middleware, Post, Put } from '../../core/decorators';
 import { isAdmin, verifyToken } from '../../core/middlewares';
-
+import { ProductService } from '../products/product.service';
 @singleton()
 @Controller('/tags')
 export class TagController {
-  constructor(private tagService: TagService) {}
+  constructor(
+    private tagService: TagService,
+    private productService: ProductService,
+  ) {}
 
   @Get()
   async getTags(req: Request, resp: Response) {
@@ -51,6 +54,12 @@ export class TagController {
   @Middleware([verifyToken, isAdmin])
   async removeTag(req: Request, resp: Response) {
     const { id } = req.params;
+    const tag = await this.tagService.getTagsByIds([id]);
+    const hasData = await this.productService.getProducts({ tag: tag[0].url });
+    if (hasData) {
+      resp.status(HttpStatus.FORBIDDEN).json(hasData);
+      return;
+    }
     const removed = await this.tagService.removeTag(id);
 
     resp.status(HttpStatus.OK).json(removed);

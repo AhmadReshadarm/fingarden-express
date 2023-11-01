@@ -26,12 +26,12 @@ export class App {
     server.use(
       env === 'production'
         ? morgan('combined', {
-          stream: {
-            write(message: string): void {
-              logger.info(message);
+            stream: {
+              write(message: string): void {
+                logger.info(message);
+              },
             },
-          },
-        })
+          })
         : morgan('dev'),
     );
     server.use(cors({ exposedHeaders: ['Content-Disposition'] }));

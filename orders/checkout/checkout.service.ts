@@ -30,7 +30,7 @@ export class CheckoutService {
     authToken: string,
     userId: string,
   ): Promise<PaginationDTO<CheckoutDTO>> {
-    const { addressId, basketId, sortBy = 'basket', orderBy = 'DESC', offset = 0, limit = 10 } = queryParams;
+    const { addressId, basketId, sortBy = 'createdAt', orderBy = 'DESC', offset = 0, limit = 10 } = queryParams;
 
     const queryBuilder = this.checkoutRepository
       .createQueryBuilder('checkout')
@@ -60,7 +60,7 @@ export class CheckoutService {
   }
 
   async getAllCheckouts(queryParams: CheckoutQueryDTO, authToken: string): Promise<PaginationDTO<CheckoutDTO>> {
-    const { addressId, basketId, userId, sortBy = 'basket', orderBy = 'DESC', offset = 0, limit = 10 } = queryParams;
+    const { addressId, basketId, userId, sortBy = 'createdAt', orderBy = 'DESC', offset = 0, limit = 10 } = queryParams;
 
     const queryBuilder = this.checkoutRepository
       .createQueryBuilder('checkout')
@@ -81,6 +81,7 @@ export class CheckoutService {
     queryBuilder.orderBy(`checkout.${sortBy}`, orderBy).skip(offset).take(limit);
 
     const checkouts = await queryBuilder.getMany();
+
     const result = checkouts.map(async checkout => await this.mergeCheckout(checkout, authToken));
 
     return {
@@ -94,6 +95,7 @@ export class CheckoutService {
       .createQueryBuilder('checkout')
       .leftJoinAndSelect('checkout.address', 'address')
       .leftJoinAndSelect('checkout.basket', 'basket')
+      .leftJoinAndSelect('basket.orderProducts', 'orderProduct')
       .where('checkout.id = :id', { id: id })
       .getOne();
 
@@ -195,19 +197,42 @@ export class CheckoutService {
     return checkout;
   }
 
-  async updateCheckout(id: string, checkoutDTO: Checkout, user: UserAuth) {
-    const checkout = await this.checkoutRepository.findOneOrFail({
-      where: {
-        id: Equal(id),
-      },
-    });
+  async updateCheckout(id: string, checkoutDTO: Checkout, user: UserAuth): Promise<CheckoutDTO> {
+    // const checkout = await this.checkoutRepository.findOneOrFail({
+    //   where: {
+    //     id: Equal(id),
+    //   },
+    // });
 
-    await this.isUserCheckoutOwner(checkout, user);
+    // await this.isUserCheckoutOwner(checkout, user);
 
-    return this.checkoutRepository.save({
-      ...checkout,
-      ...checkoutDTO,
-    });
+    // return this.checkoutRepository.save({
+    //   ...checkout,
+    //   ...checkoutDTO,
+    // });
+
+    await this.checkoutRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        status: checkoutDTO.status,
+      })
+      .where('id = :id', { id: id })
+      .execute();
+
+    const queryBuilder = await this.checkoutRepository
+      .createQueryBuilder('checkout')
+      .leftJoinAndSelect('checkout.address', 'address')
+      .leftJoinAndSelect('checkout.basket', 'basket')
+      .leftJoinAndSelect('basket.orderProducts', 'orderProduct')
+      .where('checkout.id = :id', { id: id })
+      .getOne();
+
+    if (!queryBuilder) {
+      throw new CustomExternalError([ErrorCode.ENTITY_NOT_FOUND], HttpStatus.NOT_FOUND);
+    }
+
+    return this.mergeCheckout(queryBuilder, '_');
   }
 
   async removeCheckout(id: string, user: UserAuth) {
@@ -216,7 +241,7 @@ export class CheckoutService {
         id: Equal(id),
       },
     });
-    await this.isUserCheckoutOwner(checkout, user);
+    this.isUserCheckoutOwner(checkout, user);
 
     return this.checkoutRepository.remove(checkout);
   }

@@ -34,7 +34,7 @@ export class Address {
   @Column()
   rignBell: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   @Column()
   zipCode: string;
 

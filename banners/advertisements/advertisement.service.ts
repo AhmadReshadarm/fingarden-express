@@ -15,20 +15,20 @@ export class AdvertisementService {
   }
 
   async getAdvertisements(): Promise<Advertisement[]> {
-    return this.advertisementRepository.find()
+    return this.advertisementRepository.find();
   }
 
   async getAdvertisement(id: string): Promise<Advertisement> {
     const advertisement = await this.advertisementRepository.findOneOrFail({
       where: {
-          id: Equal(id),
+        id: Equal(id),
       },
     });
     return advertisement;
   }
 
   async createAdvertisement(advertisementDTO: Advertisement): Promise<Advertisement> {
-    await this.validateMaxAdvertisements()
+    await this.validateMaxAdvertisements();
     const newAdvertisement = await validation(new Advertisement(advertisementDTO));
 
     return this.advertisementRepository.save(newAdvertisement);
@@ -37,21 +37,21 @@ export class AdvertisementService {
   async updateAdvertisement(id: string, advertisementDTO: Advertisement) {
     const advertisement = await this.advertisementRepository.findOneOrFail({
       where: {
-          id: Equal(id),
-      }
+        id: Equal(id),
+      },
     });
 
     return this.advertisementRepository.save({
       ...advertisement,
-      ...advertisementDTO
+      ...advertisementDTO,
     });
   }
 
   async removeAdvertisement(id: string) {
     const advertisement = await this.advertisementRepository.findOneOrFail({
       where: {
-          id: Equal(id),
-      }
+        id: Equal(id),
+      },
     });
 
     return this.advertisementRepository.remove(advertisement);
@@ -60,7 +60,10 @@ export class AdvertisementService {
   async validateMaxAdvertisements() {
     const advertisementsQty = await this.advertisementRepository.count();
     if (advertisementsQty > MAX_ADVERTISEMENTS - 1) {
-      throw new CustomExternalError([`Advertisements cannot be more than ${MAX_ADVERTISEMENTS}`], HttpStatus.BAD_REQUEST);
+      throw new CustomExternalError(
+        [`Advertisements cannot be more than ${MAX_ADVERTISEMENTS}`],
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }

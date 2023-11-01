@@ -73,6 +73,7 @@ export class AuthController {
         isVerified: false,
         password: hashedPass,
         role: Role.User,
+        image: '',
       };
       const isUser = await this.userService.getByEmail(payload.email);
 
@@ -89,7 +90,9 @@ export class AuthController {
       const refreshTokenCreated = refreshToken({ ...created, password: undefined });
 
       sendMail(tokenEmail, created);
-
+      if (req.body.isSubscribed) {
+        this.userService.subscribeToNewsletter(newUser.firstName, newUser.email);
+      }
       resp
         .status(HttpStatus.CREATED)
         .json({ user: { ...others }, accessToken: accessTokenCreated, refreshToken: refreshTokenCreated });
@@ -166,6 +169,7 @@ export class AuthController {
   @Post('session')
   async tokenSession(req: Request, resp: Response) {
     const { token } = req.body;
+
     if (!token) {
       resp.status(HttpStatus.UNAUTHORIZED).json({ message: 'no token found' });
       return;
@@ -177,16 +181,18 @@ export class AuthController {
           resp.status(HttpStatus.FORBIDDEN).json({ message: 'Access token is expired' });
           return;
         }
-        resp.status(HttpStatus.OK).json({ message: 'token is valid' });
+        const userInDB = await this.userService.getUser(user.id);
+        const { password, ...others } = userInDB;
+        resp.status(HttpStatus.OK).json(others);
       });
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
   @Post('reset')
   @Middleware([sendTokenLimiter, resetPasswordLimiter])
-  async reset(req: Request, resp: Response) {
+  async sendResetPasswordToken(req: Request, resp: Response) {
     const { email } = req.body;
     try {
       const user = await this.userService.getByEmail(email);
@@ -221,7 +227,7 @@ export class AuthController {
       const { EMAIL_SECRET_TOKEN } = process.env;
       jwt.verify(token, EMAIL_SECRET_TOKEN, async (error: any, decoded: any) => {
         if (error) {
-          resp.status(HttpStatus.FORBIDDEN).json({ message: 'Access token is expired' });
+          resp.status(HttpStatus.FORBIDDEN).json({ message: 'Access token is expired', error });
 
           return;
         }
@@ -242,6 +248,7 @@ export class AuthController {
           password: hashedPass,
           isVerified: user.isVerified ? true : false,
           role: decoded.role !== Role.Admin ? Role.User : Role.Admin,
+          image: user.image,
         };
 
         await this.userService.updateUser(decoded.id, payload);

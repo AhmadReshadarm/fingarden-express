@@ -7,73 +7,114 @@ import { Category } from '../../core/entities';
 import { Controller, Delete, Get, Middleware, Post, Put } from '../../core/decorators';
 import { isAdmin, verifyToken } from '../../core/middlewares';
 import { CreateCategoryDTO } from '../catalog.dtos';
+import { ProductService } from '../products/product.service';
 
 @singleton()
 @Controller('/categories')
 export class CategoryController {
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    private productService: ProductService,
+  ) {}
 
   @Get()
   async getCategories(req: Request, resp: Response) {
-    const categories = await this.categoryService.getCategories(req.query);
+    try {
+      const categories = await this.categoryService.getCategories(req.query);
 
-    resp.json(categories);
+      resp.json(categories);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Get('categoriesTree')
   async getCategoriesTree(req: Request, resp: Response) {
-    const categories = await this.categoryService.getCategoriesTree();
+    try {
+      const categories = await this.categoryService.getCategoriesTree();
 
-    resp.json(categories);
+      resp.json(categories);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Get(':id')
   async getCategory(req: Request, resp: Response) {
-    const { id } = req.params;
-    const category = await this.categoryService.getCategory(id);
+    try {
+      const { id } = req.params;
+      const category = await this.categoryService.getCategory(id);
 
-    resp.json(category);
+      resp.json(category);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Post()
   @Middleware([verifyToken, isAdmin])
   async createCategory(req: Request, resp: Response) {
-    const { parentId } = req.body;
-    const newCategory: CreateCategoryDTO = await validation(req.body);
+    try {
+      const { parentId } = req.body;
+      const newCategory: CreateCategoryDTO = await validation(req.body);
 
-    if (parentId) {
-      newCategory.parent = await this.categoryService.getCategory(parentId);
+      if (parentId) {
+        newCategory.parent = await this.categoryService.getCategory(parentId);
+      }
+
+      const created = await this.categoryService.createCategory(newCategory);
+
+      resp.status(HttpStatus.CREATED).json(created);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
     }
-
-    const created = await this.categoryService.createCategory(newCategory);
-
-    resp.status(HttpStatus.CREATED).json(created);
   }
 
   @Put(':id')
   @Middleware([verifyToken, isAdmin])
   async updateCategory(req: Request, resp: Response) {
-    const { id } = req.params;
-    const { parentId } = req.body;
-    const newCategory = await validation(new Category(req.body));
+    try {
+      const { id } = req.params;
+      const { parentId } = req.body;
+      const newCategory = await validation(new Category(req.body));
 
-    if (parentId) {
-      newCategory.parent = await this.categoryService.getCategory(parentId);
-    } else {
-      newCategory.parent = undefined;
+      if (parentId) {
+        newCategory.parent = await this.categoryService.getCategory(parentId);
+      } else {
+        newCategory.parent = undefined;
+      }
+
+      const updated = await this.categoryService.updateCategory(id, newCategory);
+
+      resp.status(HttpStatus.OK).json(updated);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
     }
-
-    const updated = await this.categoryService.updateCategory(id, newCategory);
-
-    resp.status(HttpStatus.OK).json(updated);
   }
 
   @Delete(':id')
   @Middleware([verifyToken, isAdmin])
   async removeCategory(req: Request, resp: Response) {
     const { id } = req.params;
-    const removed = await this.categoryService.removeCategory(id);
+    try {
+      const category = await this.categoryService.getCategory(id);
 
-    resp.status(HttpStatus.OK).json(removed);
+      const hasData = await this.productService.getProducts({ category: category.url });
+
+      if (category.children.length !== 0) {
+        resp.status(HttpStatus.FORBIDDEN).json(category);
+        return;
+      }
+      if (hasData.length !== 0) {
+        resp.status(HttpStatus.FORBIDDEN).json(hasData);
+        return;
+      }
+
+      const removed = await this.categoryService.removeCategory(id);
+
+      resp.status(HttpStatus.OK).json(removed);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 }

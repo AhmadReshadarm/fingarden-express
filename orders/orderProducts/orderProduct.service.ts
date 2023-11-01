@@ -161,26 +161,64 @@ export class OrderProductService {
 
     return orderProduct;
   }
+  // orderProductDTO: OrderProduct
+  async updateOrderProduct(id: string, qty?: number, productSize?: string) {
+    // const orderProduct = await this.orderProductRepository
+    //   .createQueryBuilder('orderProduct')
+    //   .leftJoinAndSelect('orderProduct.inBasket', 'basket')
+    //   .where('orderProduct.id = :id', { id: id })
+    //   .getOne();
 
-  async updateOrderProduct(id: string, orderProductDTO: OrderProduct) {
-    const orderProduct = await this.orderProductRepository
+    // const newOrderProduct = {} as OrderProduct;
+
+    // Object.assign(newOrderProduct, orderProduct);
+    // newOrderProduct.qty = orderProductDTO.qty;
+    // newOrderProduct.productSize = orderProductDTO.productSize;
+
+    // // if (user) {
+    // //   await this.isUserOrderProductOwner(newOrderProduct, user);
+    // // }
+
+    // await this.orderProductRepository.remove(orderProduct!);
+
+    // return this.orderProductRepository.save(newOrderProduct);
+
+    await this.orderProductRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        qty: qty,
+        productSize: productSize,
+      })
+      .where('id = :id', { id: id })
+      .execute();
+
+    return await this.orderProductRepository
       .createQueryBuilder('orderProduct')
       .leftJoinAndSelect('orderProduct.inBasket', 'basket')
       .where('orderProduct.id = :id', { id: id })
       .getOne();
 
-    const newOrderProduct = {} as OrderProduct;
+    //  await this.commentRepository
+    //    .createQueryBuilder()
+    //    .update()
+    //    .set({
+    //      text: commentDTO.text,
+    //    })
+    //    .where('id = :id', { id: id })
+    //    .execute();
+    //  const queryBuilder = this.commentRepository
+    //    .createQueryBuilder('comment')
+    //    .leftJoinAndSelect('comment.review', 'review')
+    //    .leftJoinAndSelect('comment.reactions', 'reactions');
+    //  if (reviewId) {
+    //    queryBuilder.andWhere('review.id = :id', { id: reviewId });
+    //  }
 
-    Object.assign(newOrderProduct, orderProduct);
-    newOrderProduct.qty = orderProductDTO.qty;
-
-    // if (user) {
-    //   await this.isUserOrderProductOwner(newOrderProduct, user);
-    // }
-
-    await this.orderProductRepository.remove(orderProduct!);
-
-    return this.orderProductRepository.save(newOrderProduct);
+    //  queryBuilder.orderBy(`comment.createdAt`, 'ASC').skip(0).take(1000);
+    //  const comments = await queryBuilder.getMany();
+    //  const result = comments.map(async comment => await this.mergeCommentUserId(comment, ''));
+    //  return await Promise.all(result);
   }
 
   async removeOrderProduct(id: string) {
@@ -218,6 +256,7 @@ export class OrderProductService {
       // user: await this.getUserById(orderProduct.userId, authToken) ?? orderProduct.userId,
       qty: orderProduct.qty,
       productPrice: orderProduct.productPrice,
+      productSize: orderProduct.productSize,
       inBasket: orderProduct.inBasket,
     };
   }

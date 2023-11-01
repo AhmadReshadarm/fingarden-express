@@ -29,6 +29,9 @@ export class User {
   @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role;
 
+  @Column({ default: '' })
+  image: string;
+
   @CreateDateColumn()
   createdAt?: Date;
 
@@ -42,6 +45,7 @@ export class User {
     password: string;
     isVerified: boolean;
     role: Role;
+    image: string;
   }) {
     if (args) {
       this.firstName = args.firstName;
@@ -50,6 +54,7 @@ export class User {
       this.password = args.password;
       this.isVerified = args.isVerified;
       this.role = args.role;
+      this.image = args.image;
     }
   }
 }

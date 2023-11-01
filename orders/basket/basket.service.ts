@@ -5,7 +5,7 @@ import { ErrorCode } from '../../core/domain/error/error.code';
 import { Basket, OrderProduct } from '../../core/entities';
 import { HttpStatus } from '../../core/lib/http-status';
 import axios from 'axios';
-import { BasketDTO, BasketQueryDTO, UserAuth, UserDTO } from '../order.dtos';
+import { BasketDTO, BasketQueryDTO, OrderProductResponse, UserAuth, UserDTO } from '../order.dtos';
 import { Role } from '../../core/enums/roles.enum';
 import { scope } from '../../core/middlewares/access.user';
 import { OrderProductService } from '../orderProducts/orderProduct.service';
@@ -16,7 +16,10 @@ export class BasketService {
   private basketRepository: Repository<Basket>;
   private orderProductRepository: Repository<OrderProduct>;
 
-  constructor(dataSource: DataSource, private orderProductService: OrderProductService) {
+  constructor(
+    dataSource: DataSource,
+    private orderProductService: OrderProductService,
+  ) {
     this.basketRepository = dataSource.getRepository(Basket);
     this.orderProductRepository = dataSource.getRepository(OrderProduct);
   }
@@ -133,35 +136,164 @@ export class BasketService {
     });
 
     const promises = basket.orderProducts.map(orderProduct => this.orderProductService.mergeOrderProduct(orderProduct));
+
     const orderProducts = await Promise.all(promises);
 
-    for (const { productId, qty, productVariantId } of basketDTO.orderProducts) {
-      const orderProduct = await this.orderProductRepository.findOne({
-        where: {
-          productId: Equal(productId),
-          basketId: Equal(basket.id),
-        },
-      });
+    // for (const { productId, qty, productSize, productVariantId } of basketDTO.orderProducts) {
+    //   const orderProduct = await this.orderProductRepository.findOne({
+    //     where: {
+    //       productId: Equal(productId),
+    //       basketId: Equal(basket.id),
+    //     },
+    //   });
 
-      if (!orderProduct) {
-        const orderProductData = new OrderProduct({ productId, qty, inBasket: basket, productVariantId });
-        const newOrderProduct = await this.orderProductService.createOrderProduct(orderProductData);
-        orderProducts.push(await this.orderProductService.mergeOrderProduct(newOrderProduct));
-      }
+    //   if (!orderProduct) {
+    //     const orderProductData = new OrderProduct({ productId, qty, productSize, inBasket: basket, productVariantId });
+    //     const newOrderProduct = await this.orderProductService.createOrderProduct(orderProductData);
+    //     orderProducts.push(await this.orderProductService.mergeOrderProduct(newOrderProduct));
+    //   }
 
-      if (orderProduct && orderProduct.qty !== qty) {
-        const newOrderProduct = await this.orderProductService.updateOrderProduct(orderProduct.id, {
-          ...orderProduct,
-          qty,
+    //   if (orderProduct && orderProduct.qty !== qty) {
+    //     // console.log('__________________________this happend_________________________');
+
+    //     const newOrderProduct = await this.orderProductService.updateOrderProduct(orderProduct.id, {
+    //       ...orderProduct,
+    //       qty,
+    //     });
+    //     const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct?.id)!;
+    //     curOrderProduct.qty = qty;
+    //   }
+    //   if (orderProduct && orderProduct.productSize !== productSize) {
+    //     const newOrderProduct = await this.orderProductService.updateOrderProduct(orderProduct.id, {
+    //       ...orderProduct,
+    //       productSize,
+    //     });
+    //     const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct?.id)!;
+    //     curOrderProduct.productSize = productSize;
+    //   }
+    // }
+    let counter = 0;
+    const updateOrderProductDetails = async () => {
+      if (counter < basketDTO.orderProducts.length) {
+        const orderProduct = await this.orderProductRepository.findOne({
+          where: {
+            productId: Equal(basketDTO.orderProducts[counter].productId),
+            basketId: Equal(basket.id),
+          },
         });
-        const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct.id)!;
-        curOrderProduct.qty = qty;
+
+        if (!orderProduct) {
+          const orderProductData = new OrderProduct({
+            productId: basketDTO.orderProducts[counter].productId,
+            qty: basketDTO.orderProducts[counter].qty,
+            productSize: basketDTO.orderProducts[counter].productSize,
+            inBasket: basket,
+            productVariantId: basketDTO.orderProducts[counter].productVariantId,
+          });
+          const newOrderProduct = await this.orderProductService.createOrderProduct(orderProductData);
+          orderProducts.push(await this.orderProductService.mergeOrderProduct(newOrderProduct));
+        }
+
+        if (orderProduct && orderProduct.qty !== basketDTO.orderProducts[counter].qty) {
+          const newOrderProduct = await this.orderProductService.updateOrderProduct(
+            orderProduct.id,
+            basketDTO.orderProducts[counter].qty,
+            basketDTO.orderProducts[counter].productSize ?? '',
+            //    {
+            //   ...orderProduct,
+            //   qty: basketDTO.orderProducts[counter].qty,
+
+            // }
+          );
+          const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct?.id)!;
+          curOrderProduct.qty = basketDTO.orderProducts[counter].qty;
+        }
+        if (orderProduct && orderProduct.productSize !== basketDTO.orderProducts[counter].productSize) {
+          const newOrderProduct = await this.orderProductService.updateOrderProduct(
+            orderProduct.id,
+            basketDTO.orderProducts[counter].qty ?? 1,
+            basketDTO.orderProducts[counter].productSize,
+            //    {
+            //   ...orderProduct,
+            //   productSize: basketDTO.orderProducts[counter].productSize,
+            // }
+          );
+          const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct?.id)!;
+          curOrderProduct.productSize = basketDTO.orderProducts[counter].productSize;
+        }
+        counter = counter + 1;
+        updateOrderProductDetails();
       }
+    };
+
+    await updateOrderProductDetails();
+    function sleep(ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+    await sleep(300);
+    // basketDTO.orderProducts.map(async ({ productId, qty, productSize, productVariantId }) => {
+    //   const orderProduct = await this.orderProductRepository.findOne({
+    //     where: {
+    //       productId: Equal(productId),
+    //       basketId: Equal(basket.id),
+    //     },
+    //   });
+
+    //   if (!orderProduct) {
+    //     const orderProductData = new OrderProduct({
+    //       productId,
+    //       qty,
+    //       productSize,
+    //       inBasket: basket,
+    //       productVariantId,
+    //     });
+    //     const newOrderProduct = await this.orderProductService.createOrderProduct(orderProductData);
+    //     orderProducts.push(await this.orderProductService.mergeOrderProduct(newOrderProduct));
+    //   }
+
+    //   if (orderProduct && orderProduct.qty !== qty) {
+    //     // console.log('__________________________this happend_________________________');
+
+    //     const newOrderProduct = await this.orderProductService.updateOrderProduct(orderProduct.id, {
+    //       ...orderProduct,
+    //       qty,
+    //     });
+    //     const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct?.id)!;
+    //     curOrderProduct.qty = qty;
+    //   }
+    //   if (orderProduct && orderProduct.productSize !== productSize) {
+    //     const newOrderProduct = await this.orderProductService.updateOrderProduct(orderProduct.id, {
+    //       ...orderProduct,
+    //       productSize,
+    //     });
+    //     const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct?.id)!;
+    //     curOrderProduct.productSize = productSize;
+    //   }
+    // });
 
     return {
       ...basket,
       orderProducts,
+    };
+  }
+
+  async clearBasket(id: string) {
+    const basket = await this.basketRepository.findOneOrFail({
+      where: {
+        id: Equal(id),
+      },
+      relations: ['orderProducts'],
+    });
+
+    basket.orderProducts.forEach(orderProduct => {
+      this.orderProductRepository.remove(orderProduct);
+    });
+
+    return {
+      ...basket,
+      orderProducts: [],
+      totalAmount: 0,
     };
   }
 

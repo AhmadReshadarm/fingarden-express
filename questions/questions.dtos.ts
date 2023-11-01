@@ -51,7 +51,7 @@ export interface CommentQueryDTO {
 
 export interface CommentDTO {
   id: string;
-  user: any;
+  user: UserDTO | string;
   question: Question;
   text: String;
   createdAt: Date;

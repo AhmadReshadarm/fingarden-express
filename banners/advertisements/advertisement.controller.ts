@@ -10,14 +10,17 @@ import { isAdmin, verifyToken } from '../../core/middlewares';
 export class AdvertisementController {
   constructor(private advertisementService: AdvertisementService) {
     (async () => {
-      const advertisements = await this.advertisementService.getAdvertisements();
+      try {
+        const advertisements = await this.advertisementService.getAdvertisements();
 
-      if (!advertisements.length) {
-        await this.advertisementService.createAdvertisement({
-          image: 'test image',
-          description: 'test desc',
-          link: 'test link',
-        } as any);
+        if (!advertisements.length) {
+          await this.advertisementService.createAdvertisement({
+            title: 'title',
+            description: 'this is description',
+          } as any);
+        }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }
@@ -44,9 +47,8 @@ export class AdvertisementController {
 
     if (!advertisements.length) {
       const created = await this.advertisementService.createAdvertisement({
-        image: 'test image',
-        description: 'test desc',
-        link: 'test link',
+        title: '',
+        description: '',
       } as any);
 
       resp.status(HttpStatus.CREATED).json({ created });

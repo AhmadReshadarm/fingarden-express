@@ -51,6 +51,18 @@ export class BasketController {
     }
   }
 
+  @Get('clear/:id')
+  async clearBasket(req: Request, resp: Response) {
+    const { id } = req.params;
+
+    try {
+      const updated = await this.basketService.clearBasket(id);
+      resp.status(HttpStatus.OK).json(updated);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`somthing went wrong ${error}`);
+    }
+  }
+
   @Put(':id')
   // @Middleware([verifyToken, isUser])
   async updateBasket(req: Request, resp: Response) {

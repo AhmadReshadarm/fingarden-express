@@ -4,11 +4,14 @@ import { singleton } from 'tsyringe';
 import { HttpStatus } from '../../core/lib/http-status';
 import { SizeService } from './size.service';
 import { isAdmin, verifyToken } from '../../core/middlewares';
-
+import { ProductService } from '../products/product.service';
 @singleton()
 @Controller('/sizes')
 export class SizeController {
-  constructor(private sizeService: SizeService) {}
+  constructor(
+    private sizeService: SizeService,
+    private productService: ProductService,
+  ) {}
 
   @Get()
   async getSizes(req: Request, resp: Response) {
@@ -46,6 +49,12 @@ export class SizeController {
   @Middleware([verifyToken, isAdmin])
   async removeSize(req: Request, resp: Response) {
     const { id } = req.params;
+    const size = await this.sizeService.getSizesByIds([id]);
+    const hasData = await this.productService.getProducts({ size: size[0].url });
+    if (hasData) {
+      resp.status(HttpStatus.FORBIDDEN).json(hasData);
+      return;
+    }
     const removed = await this.sizeService.removeSize(id);
 
     resp.status(HttpStatus.OK).json(removed);

@@ -10,53 +10,75 @@ import { WishlistService } from './wishlist.service';
 @singleton()
 @Controller('/wishlists')
 export class WishlistController {
-  constructor(private wishlistService: WishlistService) { }
+  constructor(private wishlistService: WishlistService) {}
 
   @Get()
   @Middleware([verifyToken, isAdmin])
   async getWishlists(req: Request, resp: Response) {
-    const wishlists = await this.wishlistService.getWishlists(req.query);
+    try {
+      const wishlists = await this.wishlistService.getWishlists(req.query);
 
-    resp.json(wishlists);
+      resp.json(wishlists);
+    } catch (error) {}
   }
 
   @Get(':id')
   async getWishlist(req: Request, resp: Response) {
     const { id } = req.params;
-    const wishlist = await this.wishlistService.getWishlist(id);
+    try {
+      const wishlist = await this.wishlistService.getWishlist(id);
 
-    resp.json(wishlist);
+      resp.json(wishlist);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Get('wishlistProducts/:id')
   async getWishlistProducts(req: Request, resp: Response) {
     const { id } = req.params;
-    const products = await this.wishlistService.getWishlistProducts(id);
+    try {
+      const products = await this.wishlistService.getWishlistProducts(id);
 
-    resp.json(products);
+      resp.json(products);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Post()
   async createWishlist(req: Request, resp: Response) {
-    const created = await this.wishlistService.createWishlist();
+    try {
+      const created = await this.wishlistService.createWishlist();
 
-    resp.status(HttpStatus.CREATED).json(created);
+      resp.status(HttpStatus.CREATED).json(created);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Put(':id')
   async updateWishlist(req: Request, resp: Response) {
     const { id } = req.params;
+    try {
+      const updated = await this.wishlistService.updateWishlist(id, req.body);
 
-    const updated = await this.wishlistService.updateWishlist(id, req.body);
-
-    resp.status(HttpStatus.CREATED).json(updated);
+      resp.status(HttpStatus.CREATED).json(updated);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`somthing went wrong ${error}`);
+    }
   }
 
   @Delete(':id')
+  @Middleware([verifyToken, isAdmin])
   async removeWishlist(req: Request, resp: Response) {
     const { id } = req.params;
-    const removed = await this.wishlistService.removeWishlist(id);
+    try {
+      const removed = await this.wishlistService.removeWishlist(id);
 
-    resp.status(HttpStatus.OK).json(removed);
+      resp.status(HttpStatus.OK).json(removed);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`somthing went wrong ${error}`);
+    }
   }
 }

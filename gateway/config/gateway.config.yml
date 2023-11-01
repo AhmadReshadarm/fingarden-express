@@ -1,42 +1,48 @@
 http:
-  'hostname': '0.0.0.0'
   port: ${PORT}
+
 admin:
   port: 9876
-  host: localhost
+  host: '0.0.0.0'
 apiEndpoints:
+  all:
+    host: '*'
+    paths: '*'
   auth:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/users*', '/auth*', '/admin*']
   catalog:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/products*', '/tags*', '/sizes*', '/categories*', '/brands*', '/colors*', '/parameters*']
   images:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/images*']
   orders:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/addresses*', '/baskets*', '/checkouts*', '/order-products*', '/payments*']
   reviews:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/reviews*', '/comments*']
   questions:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/questions*', '/question-comments*']
   swagger:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/api-docs*']
   wishlists:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/wishlists*']
   banners:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/slides*', '/advertisements*']
   analytics:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/analytics*']
+  news:
+    host: '95.165.95.110'
+    paths: ['/news*']
   mailer:
-    host: localhost
+    host: '95.165.95.110'
     paths: ['/subscribe*', '/mailings*']
 serviceEndpoints:
   authSrv:
@@ -59,12 +65,22 @@ serviceEndpoints:
     url: ${BANNERS_DB}
   analyticsSrv:
     url: ${ANALYTICS_DB}
+  newsSrv:
+    url: ${NEWS_DB}
   mailerSrv:
     url: ${MAILER_DB}
 policies:
   - cors
   - proxy
+  - log
 pipelines:
+  logRequest:
+    apiEndpoints:
+      - all
+    policies:
+      - log:
+          - action:
+              message: '${req.method} ${req.originalUrl}'
   pipeAuth:
     apiEndpoints:
       - auth
@@ -144,6 +160,14 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: analyticsSrv
+              changeOrigin: true
+  pipeNews:
+    apiEndpoints:
+      - news
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: newsSrv
               changeOrigin: true
   pipeMailer:
     apiEndpoints:

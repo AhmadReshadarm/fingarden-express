@@ -4,7 +4,7 @@ import { CustomExternalError } from '../../core/domain/error/custom.external.err
 import { ErrorCode } from '../../core/domain/error/error.code';
 import { QuestionComment, QuestionReactionComment, Question } from '../../core/entities';
 import { HttpStatus } from '../../core/lib/http-status';
-import { CommentQueryDTO, UserAuth, UserDTO, CommentDTO, CreateCommentDTO } from '../questions.dtos';
+import { CommentQueryDTO, UserAuth, UserDTO, CommentDTO, CreateCommentDTO, QuestionDTO } from '../questions.dtos';
 import axios from 'axios';
 import { scope } from '../../core/middlewares/access.user';
 import { Role } from '../../core/enums/roles.enum';
@@ -95,8 +95,8 @@ export class CommentService {
     return lastElement[0] ? String(+lastElement[0].id + 1) : String(1);
   }
 
-  async createComment(commentDTO: CreateCommentDTO): Promise<QuestionComment> {
-    await this.validation(commentDTO);
+  async createComment(commentDTO: CreateCommentDTO): Promise<CommentDTO> {
+    this.validation(commentDTO);
     const question = await this.getQuestion(commentDTO.questionId);
 
     const newComment = new QuestionComment({
@@ -105,7 +105,8 @@ export class CommentService {
       text: commentDTO.text,
     });
 
-    return this.commentRepository.save(newComment);
+    const created = await this.commentRepository.save(newComment);
+    return await this.mergeCommentUserId(created);
   }
 
   async createReaction(reaction: QuestionReactionComment): Promise<QuestionReactionComment> {
@@ -120,13 +121,27 @@ export class CommentService {
       ...comment,
       ...others,
     };
+    this.isUserCommentOwner(newComment, user);
+    await this.commentRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        text: commentDTO.text,
+      })
+      .where('id = :id', { id: id })
+      .execute();
+    const queryBuilder = this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.question', 'question')
+      .leftJoinAndSelect('comment.reactions', 'reactions');
+    if (questionId) {
+      queryBuilder.andWhere('question.id = :id', { id: questionId });
+    }
 
-    newComment.userId = typeof comment.user === 'string' ? comment.user : comment.user.id;
-
-    await this.isUserCommentOwner(newComment, user);
-    await this.commentRepository.remove(comment as any);
-
-    return this.commentRepository.save(newComment);
+    queryBuilder.orderBy(`comment.createdAt`, 'ASC').skip(0).take(1000);
+    const comments = await queryBuilder.getMany();
+    const result = comments.map(async comment => await this.mergeCommentUserId(comment));
+    return await Promise.all(result);
   }
 
   async removeComment(id: string, user: UserAuth) {
@@ -185,15 +200,9 @@ export class CommentService {
   }
 
   async mergeCommentUserId(comment: QuestionComment): Promise<CommentDTO> {
-    const user = await this.getUserById(comment.userId);
-    const userInDB = {
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-      role: user?.role,
-    };
     return {
       id: comment.id,
-      user: userInDB,
+      user: (await this.getUserById(comment.userId)) ?? comment.userId,
       question: comment.question,
       text: comment.text,
       createdAt: comment.createdAt,

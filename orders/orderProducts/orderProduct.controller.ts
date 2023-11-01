@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { singleton } from 'tsyringe';
-import { Controller, Delete, Get, Middleware } from '../../core/decorators';
+import { Controller, Delete, Get, Middleware, Put } from '../../core/decorators';
 import { Role } from '../../core/enums/roles.enum';
 import { HttpStatus } from '../../core/lib/http-status';
 import { isAdmin, isUser, verifyToken } from '../../core/middlewares';
@@ -31,6 +31,14 @@ export class OrderProductController {
 
     resp.json(orderProduct);
   }
+
+  // @Put(':id')
+  // async updateOrderProduct(req: Request, resp: Response) {
+  //   const { id } = req.params;
+  //   const orderProduct = await this.orderProductService.updateOrderProduct(id, req.body);
+
+  //   resp.json(orderProduct);
+  // }
 
   @Get('inner')
   async innerGet(req: Request, resp: Response) {

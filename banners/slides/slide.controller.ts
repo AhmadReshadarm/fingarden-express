@@ -12,9 +12,13 @@ export class SlideController {
 
   @Get()
   async getSlides(req: Request, resp: Response) {
-    const slides = await this.slideService.getSlides();
+    try {
+      const slides = await this.slideService.getSlides();
 
-    resp.json(slides);
+      resp.json(slides);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Get(':id')
@@ -28,9 +32,13 @@ export class SlideController {
   @Post('')
   @Middleware([verifyToken, isAdmin])
   async createSlide(req: Request, resp: Response) {
-    const created = await this.slideService.createSlide(req.body);
+    try {
+      const created = await this.slideService.createSlide(req.body);
 
-    resp.status(HttpStatus.CREATED).json({ id: created.id });
+      resp.status(HttpStatus.CREATED).json({ id: created.id });
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Put()

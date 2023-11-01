@@ -29,15 +29,21 @@ export class ProductService {
       desc,
       available,
       colors,
+      color,
       categories,
       parent,
+      category,
       brands,
+      brand,
       tags,
+      tag,
       sizes,
+      size,
       sortBy = 'name',
       orderBy = 'DESC',
       offset = 0,
       limit = 10,
+      image,
     } = queryParams;
     const queryBuilder = await this.productRepository
       .createQueryBuilder('product')
@@ -59,6 +65,9 @@ export class ProductService {
     if (maxPrice) {
       queryBuilder.andWhere('productVariant.price <= :maxPrice', { maxPrice: maxPrice });
     }
+    if (image) {
+      queryBuilder.andWhere('productVariant.images LIKE :image', { image: `%${image}%` });
+    }
     if (desc) {
       queryBuilder.andWhere('product.desc LIKE :desc', { desc: `%${desc}%` });
     }
@@ -68,29 +77,45 @@ export class ProductService {
     if (colors) {
       queryBuilder.andWhere('color.url IN (:...colors)', { colors: colors });
     }
+    if (color) {
+      queryBuilder.andWhere('color.url = :color', { color: color });
+    }
     if (parent) {
       queryBuilder.andWhere('categoryParent.url = :parent', { parent: parent });
     }
     if (categories) {
       queryBuilder.andWhere('category.url IN (:...categories)', { categories: categories });
     }
+    if (category) {
+      queryBuilder.andWhere('category.url = :category', { category: category });
+    }
     if (brands) {
       queryBuilder.andWhere('brand.url IN (:...brands)', { brands: brands });
+    }
+    if (brand) {
+      queryBuilder.andWhere('brand.url = :brand', { brand: brand });
     }
     if (tags) {
       queryBuilder.andWhere('tag.url IN (:...tags)', { tags: tags });
     }
+    if (tag) {
+      queryBuilder.andWhere('tag.url = :tag', { tag: tag });
+    }
     if (sizes) {
       queryBuilder.andWhere('size.url IN (:...sizes)', { sizes: sizes });
+    }
+    if (size) {
+      queryBuilder.andWhere('size.url = :size', { size: size });
     }
 
     queryBuilder.orderBy(`product.${sortBy}`, orderBy).skip(offset).take(limit);
 
     const products = await queryBuilder.getMany();
-    const result = products.map(async product => await this.mergeProduct(product));
+
+    const results = products.map(async product => await this.mergeProduct(product));
 
     return {
-      rows: await Promise.all(result),
+      rows: await Promise.all(results),
       length: await queryBuilder.getCount(),
     };
   }
@@ -181,7 +206,7 @@ export class ProductService {
       throw new CustomExternalError([ErrorCode.ENTITY_NOT_FOUND], HttpStatus.NOT_FOUND);
     }
 
-    return this.mergeProduct(product);
+    return await this.mergeProduct(product);
   }
 
   async createProduct(newProduct: Product): Promise<Product> {

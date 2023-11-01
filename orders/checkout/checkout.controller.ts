@@ -23,22 +23,30 @@ export class CheckoutController {
     // if (resp.locals.user.role !== Role.Admin) {
     //   req.query.userId = String(resp.locals.user.id);
     // }
-    const { jwt } = resp.locals;
-    const checkouts = await this.checkoutService.getCheckouts(req.query, req.headers.authorization!, jwt.id);
+    try {
+      const { jwt } = resp.locals;
+      const checkouts = await this.checkoutService.getCheckouts(req.query, req.headers.authorization!, jwt.id);
 
-    resp.json(checkouts);
+      resp.status(HttpStatus.OK).json(checkouts);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+    }
   }
 
   @Get('all')
   @Middleware([verifyToken, isAdmin])
   async getAllCheckouts(req: Request, resp: Response) {
-    const checkouts = await this.checkoutService.getAllCheckouts(req.query, req.headers.authorization!);
+    try {
+      const checkouts = await this.checkoutService.getAllCheckouts(req.query, req.headers.authorization!);
 
-    resp.json(checkouts);
+      resp.json(checkouts);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+    }
   }
 
   @Get(':id')
-  @Middleware([verifyToken, isUser])
+  @Middleware([verifyToken, isAdmin])
   async getCheckout(req: Request, resp: Response) {
     const { id } = req.params;
     const checkout = await this.checkoutService.getCheckout(id, req.headers.authorization!);
@@ -53,48 +61,46 @@ export class CheckoutController {
     newCheckout.userId = resp.locals.user.id;
     const { jwt } = resp.locals;
     let created: any;
+
     try {
       await validation(newCheckout);
-    } catch (error) {
-      console.log(`validation faild: ${error}`);
-    }
-    try {
       created = await this.checkoutService.createCheckout(newCheckout);
       resp.status(HttpStatus.CREATED).json(created);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `saving order faild: ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
-    try {
-      const invoiceData: any = await createInvoice(created!, jwt.name);
-      sendInvoice(invoiceTamplate(invoiceData), jwt.email);
-      console.log('invoice send succsfuly');
-    } catch (error) {
-      console.log(`sending invoice faild: ${error}`);
-    }
-    let payload;
-    let subscrition;
-    try {
-      subscrition = await this.checkoutService.getSubscribers();
-      payload = JSON.stringify({
-        title: `Заказ №: ${created?.id}`,
-        message: `Сума: ${created?.totalAmount}`,
-        url: `https:wuluxe.ru/admin/checkouts/${created?.id}`,
-      });
-    } catch (error) {
-      console.log(`getting subscribers faild: ${error}`);
-    }
-    if (!subscrition || subscrition.length === 0) return;
-    const publicKey = 'BHgZBD9sPAjR-YEMwJoULsE5xve8Ezj5XrAw155-KkwksuL6S2CnJt-dddWJg_Q9r_oAEJzQBeOG9oMXz9Sir9Y';
-    const privateKey = 'L7DfNF3YlKeMgxWyGl1eJ-em7L7Bsh0DxfNdE4kyeY0';
-    webpush.setVapidDetails('mailto:checkout@wuluxe.ru', publicKey, privateKey);
-    for (let i = 0; i < subscrition.length; i++) {
-      try {
-        webpush.sendNotification(JSON.parse(`${subscrition[i].subscriber}`), payload);
-      } catch (error) {
-        await this.checkoutService.removeSubscriber(subscrition[i].id);
-        console.log(`sending notification faild: ${error}`);
-      }
-    }
+    // try {
+    //   const invoiceData: any = await createInvoice(created!, jwt.name);
+    //   const invoice = invoiceTamplate(invoiceData);
+    //   sendInvoice(JSON.parse(invoice), jwt.email);
+    //   console.log('invoice send succsfuly');
+    // } catch (error) {
+    //   console.log(`sending invoice faild: ${error}`);
+    // }
+    // let payload;
+    // let subscrition;
+    // try {
+    //   subscrition = await this.checkoutService.getSubscribers();
+    //   payload = JSON.stringify({
+    //     title: `Заказ №: ${created?.id}`,
+    //     message: `Сума: ${created?.totalAmount}`,
+    //     url: `https:wuluxe.ru/admin/checkouts/${created?.id}`,
+    //   });
+    // } catch (error) {
+    //   console.log(`getting subscribers faild: ${error}`);
+    // }
+    // if (!subscrition || subscrition.length === 0) return;
+    // const publicKey = 'BHgZBD9sPAjR-YEMwJoULsE5xve8Ezj5XrAw155-KkwksuL6S2CnJt-dddWJg_Q9r_oAEJzQBeOG9oMXz9Sir9Y';
+    // const privateKey = 'L7DfNF3YlKeMgxWyGl1eJ-em7L7Bsh0DxfNdE4kyeY0';
+    // webpush.setVapidDetails('mailto:checkout@wuluxe.ru', publicKey, privateKey);
+    // for (let i = 0; i < subscrition.length; i++) {
+    //   try {
+    //     webpush.sendNotification(JSON.parse(`${subscrition[i].subscriber}`), payload);
+    //   } catch (error) {
+    //     await this.checkoutService.removeSubscriber(subscrition[i].id);
+    //     console.log(`sending notification faild: ${error}`);
+    //   }
+    // }
   }
 
   @Post('subscribe')
@@ -161,24 +167,28 @@ export class CheckoutController {
       }
       if (jwt.role !== Role.Admin) {
         req.body.sattus = checkoutsById.status;
-        const usedrCheckoutUpdated = await this.checkoutService.updateCheckout(id, req.body, resp.locals.user);
-        resp.status(HttpStatus.OK).json(usedrCheckoutUpdated);
+        const userCheckoutUpdated = await this.checkoutService.updateCheckout(id, req.body, resp.locals.user);
+        resp.status(HttpStatus.OK).json(userCheckoutUpdated);
         return;
       }
       const updated = await this.checkoutService.updateCheckout(id, req.body, resp.locals.user);
 
       resp.status(HttpStatus.OK).json(updated);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong: ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
   @Delete(':id')
   @Middleware([verifyToken, isAdmin])
   async removeCheckout(req: Request, resp: Response) {
-    const { id } = req.params;
-    const removed = await this.checkoutService.removeCheckout(id, resp.locals.user);
+    try {
+      const { id } = req.params;
+      const removed = await this.checkoutService.removeCheckout(id, resp.locals.user);
 
-    resp.status(HttpStatus.OK).json(removed);
+      resp.status(HttpStatus.OK).json(removed);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+    }
   }
 }

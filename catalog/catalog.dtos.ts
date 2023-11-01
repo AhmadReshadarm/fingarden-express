@@ -11,15 +11,21 @@ export interface ProductQueryDTO {
   readonly desc?: string;
   readonly available?: boolean;
   readonly colors?: string | string[];
+  readonly color?: string;
   readonly categories?: string | string[];
   readonly parent?: string;
+  readonly category?: string;
   readonly brands?: string | string[];
+  readonly brand?: string;
   readonly tags?: string | string[];
+  readonly tag?: string;
   readonly sizes?: string | string[];
+  readonly size?: string;
   readonly sortBy?: string;
   readonly orderBy?: 'DESC' | 'ASC';
   readonly offset?: number;
   readonly limit?: number;
+  readonly image?: string;
 }
 
 export interface TagQueryDTO {
@@ -76,6 +82,7 @@ export interface SizeQueryDTO {
 
 export interface CategoryQueryDTO {
   readonly name?: string;
+  readonly image?: string;
   readonly url?: string;
   readonly parent?: string;
   readonly children?: string;
@@ -88,6 +95,7 @@ export interface CategoryQueryDTO {
 
 export interface BrandQueryDTO {
   readonly name?: string;
+  readonly image?: string;
   readonly parent?: string;
   readonly category?: string;
   readonly showOnMain?: boolean;
@@ -123,6 +131,9 @@ export class CreateCategoryDTO {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @IsString()
+  desc: string;
 
   @IsNotEmpty()
   @IsString()

@@ -1,28 +1,22 @@
 import { Column, Entity, Generated, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { Min, Max, IsNotEmpty } from 'class-validator';
+import { Min, Max, IsNotEmpty, isNotEmpty } from 'class-validator';
 
 @Entity()
 export class Advertisement {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @IsNotEmpty()
-  @Column({ unique: true })
-  image: string;
+  @Column()
+  title: string;
 
   @IsNotEmpty()
   @Column('text')
   description: string;
 
-  @IsNotEmpty()
-  @Column()
-  link: string;
-
-  constructor(args?: { image: string, description: string, link: string }) {
+  constructor(args?: { description: string; title: string }) {
     if (args) {
-      this.image = args.image;
+      this.title = args.title;
       this.description = args.description;
-      this.link = args.link;
     }
   }
 }

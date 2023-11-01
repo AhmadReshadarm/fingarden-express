@@ -17,7 +17,10 @@ export class QuestionService {
   private questionRepository: Repository<Question>;
   private reactionRepository: Repository<ReactionQuestion>;
 
-  constructor(dataSource: DataSource, private commentService: CommentService) {
+  constructor(
+    dataSource: DataSource,
+    private commentService: CommentService,
+  ) {
     this.questionRepository = dataSource.getRepository(Question);
     this.reactionRepository = dataSource.getRepository(ReactionQuestion);
   }
@@ -26,7 +29,7 @@ export class QuestionService {
     const {
       productId,
       userId,
-      sortBy = 'productId',
+      sortBy = 'createdAt',
       orderBy = 'DESC',
       merge = 'true',
       offset = 0,
@@ -137,9 +140,10 @@ export class QuestionService {
 
     return lastElement[0] ? String(+lastElement[0].id + 1) : String(1);
   }
-
+  //
   async createQuestion(newQuestion: Question): Promise<QuestionDTO> {
-    if (!(await this.getProductById(newQuestion.productId))) {
+    const prodcutId = await this.getProductById(newQuestion.productId);
+    if (!prodcutId) {
       throw new CustomExternalError([ErrorCode.PRODUCT_NOT_FOUND], HttpStatus.NOT_FOUND);
     }
 

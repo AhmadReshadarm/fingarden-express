@@ -9,7 +9,10 @@ import { isAdmin, verifyToken } from '../../core/middlewares';
 @singleton()
 @Controller('/brands')
 export class BrandController {
-  constructor(private brandService: BrandService, private productService: ProductService) {}
+  constructor(
+    private brandService: BrandService,
+    private productService: ProductService,
+  ) {}
 
   @Get()
   async getBrands(req: Request, resp: Response) {
@@ -47,6 +50,15 @@ export class BrandController {
   @Middleware([verifyToken, isAdmin])
   async removeBrand(req: Request, resp: Response) {
     const { id } = req.params;
+    const brand = await this.brandService.getBrand(id);
+
+    const hasData = await this.productService.getProducts({ brand: brand.url });
+
+    if (hasData) {
+      resp.status(HttpStatus.FORBIDDEN).json(hasData);
+      return;
+    }
+
     const removed = await this.brandService.removeBrand(id);
 
     resp.status(HttpStatus.OK).json(removed);

@@ -16,6 +16,7 @@ export class BrandService {
   async getBrands(queryParams: BrandQueryDTO): Promise<PaginationDTO<Brand>> {
     const {
       name,
+      image,
       showOnMain,
       category,
       parent,
@@ -33,6 +34,9 @@ export class BrandService {
 
     if (name) {
       queryBuilder.andWhere('brand.name LIKE :name', { name: `%${name}%` });
+    }
+    if (image) {
+      queryBuilder.andWhere('brand.image LIKE :image', { image: `%${image}%` });
     }
     if (category) {
       queryBuilder.andWhere('category.url = :category', { category: `${category}` });

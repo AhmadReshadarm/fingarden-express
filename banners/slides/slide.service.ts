@@ -15,7 +15,7 @@ export class SlideService {
   }
 
   async getSlides(): Promise<Slide[]> {
-    return this.slideRepository.find()
+    return this.slideRepository.find();
   }
 
   async getSlide(id: string): Promise<Slide> {
@@ -28,14 +28,48 @@ export class SlideService {
   }
 
   async createSlide(slideDTO: Slide): Promise<Slide> {
-    await this.validateMaxSlides()
+    await this.validateMaxSlides();
     const newSlide = await validation(new Slide(slideDTO));
 
     return this.slideRepository.save(newSlide);
   }
 
+  // async updateSlides(id: string, slidesDTO: Slide): Promise<any> {
+  //   //     const slides = await this.getSlides();
+
+  //   const slide = await this.slideRepository.findOne({
+  //     where: {
+  //       id: Equal(id),
+  //     },
+  //   });
+
+  //   return this.slideRepository.save({
+  //     ...slide,
+  //     ...slidesDTO,
+  //   });
+  //   // for (const slide of slides) {
+  //   //   await this.slideRepository.remove(slide);
+  //   // }
+
+  //   // const newSlides = [];
+
+  //   // for (const slide of slidesDTO) {
+  //   //   await this.validateMaxSlides();
+  //   //   const newSlide = await validation(new Slide(slide));
+  //   //   const created = await this.slideRepository.save(...newSlide);
+  //   //   newSlides.push(created);
+  //   // }
+
+  //   // return newSlides;
+  //   // const created = await this.slideRepository.save(...slidesDTO);
+  // }
+
   async updateSlides(slidesDTO: Slide[]): Promise<Slide[]> {
     const slides = await this.getSlides();
+
+    for (const slide of slidesDTO) {
+      await validation(new Slide(slide));
+    }
 
     for (const slide of slides) {
       await this.slideRepository.remove(slide);
@@ -57,7 +91,7 @@ export class SlideService {
     const slide = await this.slideRepository.findOneOrFail({
       where: {
         id: Equal(id),
-      }
+      },
     });
 
     return this.slideRepository.remove(slide);

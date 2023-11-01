@@ -12,7 +12,10 @@ export class CategoryService {
   private categoryTreeRepository: TreeRepository<Category>;
   private parametersRepository: Repository<Parameter>;
 
-  constructor(dataSource: DataSource, private parameterService: ParameterService) {
+  constructor(
+    dataSource: DataSource,
+    private parameterService: ParameterService,
+  ) {
     this.categoryRepository = dataSource.getRepository(Category);
     this.categoryTreeRepository = dataSource.getTreeRepository(Category);
     this.parametersRepository = dataSource.getRepository(Parameter);
@@ -21,6 +24,7 @@ export class CategoryService {
   async getCategories(queryParams: CategoryQueryDTO): Promise<PaginationDTO<Category>> {
     const {
       name,
+      image,
       url,
       parameters,
       parent,
@@ -39,6 +43,9 @@ export class CategoryService {
 
     if (name) {
       queryBuilder.andWhere('category.name LIKE :name', { name: `%${name}%` });
+    }
+    if (image) {
+      queryBuilder.andWhere('category.image LIKE :image', { image: `%${image}%` });
     }
     if (url) {
       queryBuilder.andWhere('category.url LIKE :url', { url: `%${url}%` });
@@ -113,6 +120,7 @@ export class CategoryService {
     await this.categoryRepository.save({
       ...category,
       name: categoryDTO.name,
+      desc: categoryDTO.desc,
       parent: categoryDTO.parent,
       url: categoryDTO.url,
       image: categoryDTO.image,

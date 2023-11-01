@@ -21,6 +21,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/SignupDTO"
             }
           }
@@ -178,9 +179,9 @@
     "/auth/reset": {
       "post": {
         "tags": ["auth"],
-        "summary": "Reset password by email",
+        "summary": "sends a token to email to reset password",
         "description": "",
-        "operationId": "ResetPwd",
+        "operationId": "sendRestPasswordToken",
         "produces": ["application/json"],
         "parameters": [
           {
@@ -392,6 +393,7 @@
           "200": {
             "description": "Successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/User"
             }
           },
@@ -423,7 +425,8 @@
             "description": "",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserDTO"
+              "type": "object",
+              "$ref": "#/definitions/User"
             }
           }
         ],
@@ -434,7 +437,8 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "$ref": "#/definitions/User"
                 }
               }
             }
@@ -451,34 +455,32 @@
         }
       }
     },
-
-    "/users/changepsw/{userId}": {
-      "put": {
-        "tags": ["changeUserPsw"],
-        "summary": "change user password",
-        "operationId": "changePassword",
+    "/users/help": {
+      "post": {
+        "tags": ["userHelpDisk"],
+        "summary": "sends users question to admins for help",
+        "operationId": "sendMassege",
         "consumes": ["application/json"],
         "produces": ["application/json"],
         "parameters": [
           {
-            "type": "string",
-            "name": "authorization",
-            "required": true,
-            "in": "header",
-            "description": "admin token or user-token from user owner"
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "description": "id of user to change password",
-            "required": true,
-            "type": "string"
-          },
-          {
             "in": "body",
             "name": "body",
             "description": "",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "required": true
+                },
+                "text": {
+                  "type": "string",
+                  "required": true
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -506,7 +508,72 @@
         }
       }
     },
-    "/users/email-confirmation/": {
+    "/users/changepsw/{userId}": {
+      "put": {
+        "tags": ["changeUserPsw"],
+        "summary": "change user password",
+        "operationId": "changePassword",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin token or user-token from user owner"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "id of user to change password",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "type": "string"
+                },
+                "oldPassword": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid id supplied"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal"
+          }
+        }
+      }
+    },
+    "/users/email-confirmation": {
       "get": {
         "tags": ["userVerification"],
         "summary": "send user verification email",
@@ -544,7 +611,6 @@
         }
       }
     },
-
     "/users/user/{userId}": {
       "get": {
         "tags": ["user"],
@@ -572,6 +638,7 @@
           "200": {
             "description": "Successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/User"
             }
           },
@@ -619,6 +686,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/User"
             }
           }
@@ -627,7 +695,16 @@
           "200": {
             "description": "Successful updated",
             "schema": {
-              "$ref": "#/definitions/User"
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "object",
+                  "items": {
+                    "type": "object",
+                    "$ref": "#/definitions/User"
+                  }
+                }
+              }
             }
           },
           "400": {
@@ -703,7 +780,6 @@
         }
       }
     },
-
     "/brands": {
       "get": {
         "tags": ["brand"],
@@ -773,6 +849,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/BrandResponse"
             }
           }
@@ -798,6 +875,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Brand"
             }
           }
@@ -843,6 +921,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Brand"
             }
           },
@@ -881,6 +960,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Brand"
             }
           }
@@ -889,6 +969,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Brand"
             }
           },
@@ -1041,6 +1122,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CategoryResponse"
             }
           }
@@ -1066,6 +1148,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CategoryDTO"
             }
           }
@@ -1085,11 +1168,11 @@
           "400": {
             "description": "Invalid Category request"
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "401": {
             "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
@@ -1114,6 +1197,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Category"
             }
           },
@@ -1152,6 +1236,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CategoryDTO"
             }
           }
@@ -1374,6 +1459,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ColorResponse"
             }
           }
@@ -1392,6 +1478,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Color"
             }
           }
@@ -1440,6 +1527,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Color"
             }
           },
@@ -1471,6 +1559,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Color"
             }
           }
@@ -1479,6 +1568,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ColorWithoutJoins"
             }
           },
@@ -1706,6 +1796,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ProductDTO"
             }
           }
@@ -1754,6 +1845,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Product"
             }
           },
@@ -1795,6 +1887,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ProductDTO"
             }
           }
@@ -1803,6 +1896,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ProductWithoutJoins"
             }
           },
@@ -1900,6 +1994,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ProductDTO"
             }
           },
@@ -1908,27 +2003,6 @@
           },
           "404": {
             "description": "Product not found"
-          }
-        }
-      }
-    },
-    "/products/productsUnderOneThousand": {
-      "get": {
-        "tags": ["product"],
-        "summary": "Get array of products which price is under 1000",
-        "description": "",
-        "operationId": "getProducts",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ProductResponse"
-              }
-            }
           }
         }
       }
@@ -1971,136 +2045,272 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/PriceRange"
             }
           }
         }
       }
     },
-    "/foryou/anonymous": {
+    "/news": {
       "get": {
-        "tags": ["foryouProducts"],
-        "summary": "Get products based on heighst sales products",
+        "tags": ["news"],
+        "summary": "Get array of news posts",
         "description": "",
-        "operationId": "getProducts",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/foryou/by-history": {
-      "get": {
-        "tags": ["userHistory"],
-        "summary": "Get products based on user histroy in database",
-        "description": "",
-        "operationId": "getUserHistory",
+        "operationId": "getNews",
         "consumes": ["application/json"],
         "produces": ["application/json"],
         "parameters": [
           {
-            "in": "body",
-            "name": "body",
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "histroyDTO": {
-      "type": "array",
-      "properties": [
-        {
-          "id": {
+            "name": "title",
+            "in": "query",
+            "required": false,
             "type": "string"
-          }
-        }
-      ]
-    },
-    "/foryou": {
-      "get": {
-        "tags": ["userHistoryInDB"],
-        "summary": "Get products based on user histroy",
-        "description": "",
-        "operationId": "getUserHistory",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "parameters": [
+          },
+          {
+            "name": "showOnMain",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sorting reviews by property",
+            "default": "productId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "description": "Ordering results. ASC | DESC",
+            "default": "DESC",
+            "required": false,
+            "type": "string"
+          },
           {
             "type": "string",
-            "name": "authorization",
-            "required": true,
-            "in": "header",
-            "description": "admin token or user-token from user owner"
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "default": 0,
+            "description": "qty rows to skip for pagination"
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "default": 4,
+            "description": "qty rows to take for pagination"
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/NewsPosts"
+            }
           }
         }
       },
       "post": {
-        "tags": ["userHistoryInDB"],
-        "summary": "Post products based on user histroy",
+        "tags": ["news"],
+        "summary": "Create a news post",
         "description": "",
-        "operationId": "createUserHistory",
-        "consumes": ["application/json"],
+        "operationId": "createNews",
         "produces": ["application/json"],
         "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "",
-            "required": true
-          },
           {
             "type": "string",
             "name": "authorization",
             "required": true,
             "in": "header",
-            "description": "admin token or user-token from user owner"
+            "description": "admin-token is needed"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/NewsDTO"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/News"
+            }
+          },
+          "400": {
+            "description": "Invalid News post request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/news/{newsId}": {
+      "get": {
+        "tags": ["news"],
+        "summary": "Find news post by id",
+        "operationId": "findNewsById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "newsId",
+            "in": "path",
+            "description": "ID of news post to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/News"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Tag not found"
           }
         }
       },
       "put": {
-        "tags": ["userHistoryInDB"],
-        "summary": "update products based on user histroy",
+        "tags": ["news"],
+        "summary": "Update news post",
         "description": "",
-        "operationId": "updateUserHistory",
-        "consumes": ["application/json"],
+        "operationId": "updateNews",
         "produces": ["application/json"],
         "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "",
-            "required": true
-          },
           {
             "type": "string",
             "name": "authorization",
             "required": true,
             "in": "header",
-            "description": "admin token or user-token from user owner"
+            "description": "admin-token"
+          },
+          {
+            "name": "newsId",
+            "in": "path",
+            "description": "ID of news to return",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/NewsDTO"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation"
+            "description": "successful updated",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/News"
+            }
+          },
+          "400": {
+            "description": "Invalid News post request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "News post not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["news"],
+        "summary": "Delete the news",
+        "description": "",
+        "operationId": "deleteNews",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "name": "newsId",
+            "in": "path",
+            "description": "ID of news to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "News not found"
+          }
+        }
+      }
+    },
+    "/news/by-url/{url}": {
+      "get": {
+        "tags": ["news"],
+        "summary": "Find news post by url",
+        "operationId": "findNewsByUrl",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "path",
+            "description": "URL of news post to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/News"
+            }
+          },
+          "400": {
+            "description": "Invalid url supplied"
+          },
+          "404": {
+            "description": "news not found"
           }
         }
       }
@@ -2211,6 +2421,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Tag"
             }
           }
@@ -2230,11 +2441,11 @@
           "400": {
             "description": "Invalid Tag request"
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "401": {
             "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
@@ -2259,6 +2470,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Tag"
             }
           },
@@ -2297,6 +2509,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Tag"
             }
           }
@@ -2305,6 +2518,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/TagWithoutJoins"
             }
           },
@@ -2471,6 +2685,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Size"
             }
           }
@@ -2490,11 +2705,11 @@
           "400": {
             "description": "Invalid Size request"
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "401": {
             "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
@@ -2519,6 +2734,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Size"
             }
           },
@@ -2557,6 +2773,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Size"
             }
           }
@@ -2565,6 +2782,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/SizeWithoutJoins"
             }
           },
@@ -2658,9 +2876,118 @@
             "description": "Image not found"
           }
         }
+      },
+      "delete": {
+        "tags": ["image"],
+        "summary": "Delete image by filename",
+        "operationId": "deleteImageByFileName",
+        "consumes": ["application/json"],
+        "produces": ["image/png"],
+        "parameters": [
+          {
+            "name": "fileName",
+            "in": "path",
+            "description": "image File name to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Image not found"
+          }
+        }
       }
     },
     "/images": {
+      "get": {
+        "tags": ["image"],
+        "summary": "Get image list",
+        "description": "Returns an array of files names",
+        "operationId": "getImages",
+        "consumes": ["application/json"],
+        "produces": ["image/png"],
+        "parameters": [
+          {
+            "type": "string",
+            "in": "query",
+            "name": "filename",
+            "required": false
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "originalName",
+            "required": false
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "mimeType",
+            "required": false
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "size",
+            "required": false
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "default": "originalName"
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "default": "DESC",
+            "description": "can be ASC or DESC"
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "default": 0,
+            "description": "qty rows to skip for pagination"
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "default": 10,
+            "description": "qty rows to take for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ImageResponse"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Images not found"
+          }
+        }
+      },
       "post": {
         "tags": ["image"],
         "summary": "Create an image",
@@ -2712,6 +3039,494 @@
           },
           "403": {
             "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/subscribes": {
+      "get": {
+        "tags": ["subscribes"],
+        "summary": "Get array of subscribers",
+        "description": "",
+        "operationId": "getSubscribers",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token or user-token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SubscribersResponse"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["subscribes"],
+        "summary": "Create a subscriber",
+        "description": "",
+        "operationId": "createSubscribers",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SubscriberDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/SubscribersResponse"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/subscribes/{mailId}": {
+      "get": {
+        "tags": ["subscribes"],
+        "summary": "Get subscriber by Id",
+        "description": "",
+        "operationId": "getSubscriberById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "name": "mailId",
+            "in": "path",
+            "description": "ID of email to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/SubscribersResponse"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["subscribes"],
+        "summary": "Delete the subscriber",
+        "description": "",
+        "operationId": "deleteSubscriber",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token or user-token"
+          },
+          {
+            "name": "mailId",
+            "in": "path",
+            "description": "ID of email to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "items": {
+                "$ref": "#/definitions/SubscribersResponse"
+              }
+            }
+          },
+          "404": {
+            "description": "Email not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/mailings": {
+      "get": {
+        "tags": ["mailing"],
+        "summary": "Get array of Email template in raw html",
+        "description": "",
+        "operationId": "getMailings",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MailingsResponse"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["mailing"],
+        "summary": "create a mailing",
+        "description": "",
+        "operationId": "createMailing",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/MailingDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+
+              "$ref": "#/definitions/MailingsResponse"
+            }
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/mailings/{templateId}": {
+      "get": {
+        "tags": ["mailing"],
+        "summary": "Get Email template in raw html",
+        "description": "",
+        "operationId": "getMailing",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "ID of email template to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+
+              "$ref": "#/definitions/MailingsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": ["mailing"],
+        "summary": "update mailing post",
+        "description": "",
+        "operationId": "updateMailing",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "ID of email template to return",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/MailingDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+
+              "$ref": "#/definitions/MailingsResponse"
+            }
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["mailing"],
+        "summary": "Delete the mailing",
+        "description": "",
+        "operationId": "deleteSubscriber",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "ID of email template to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+
+              "$ref": "#/definitions/MailingsResponse"
+            }
+          },
+          "404": {
+            "description": "Email not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/mailings/send-selected": {
+      "post": {
+        "tags": ["mailing"],
+        "summary": "send Email to users",
+        "description": "",
+        "operationId": "sendEmailToSelected",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/EmailTemplateSelectedDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/mailings/send-all": {
+      "post": {
+        "tags": ["mailing"],
+        "summary": "send Email to users",
+        "description": "",
+        "operationId": "sendEmailToAll",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mailingId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+
+    "/mailings/sendmail": {
+      "post": {
+        "tags": ["mailing"],
+        "summary": "send Email to users",
+        "description": "",
+        "operationId": "sendEmail",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/EmailTemplateForOneDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       }
@@ -2849,6 +3664,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/AddressDTO"
             }
           }
@@ -2894,6 +3710,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Address"
             }
           },
@@ -2932,6 +3749,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/AddressDTO"
             }
           }
@@ -2940,6 +3758,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/AddressWithoutJoins"
             }
           },
@@ -3128,6 +3947,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/BasketDTO"
             }
           }
@@ -3153,6 +3973,39 @@
         }
       }
     },
+    "/baskets/clear/{basketId}": {
+      "get": {
+        "tags": ["basket"],
+        "summary": "Clear basket by id",
+        "operationId": "clearBasket",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "basketId",
+            "in": "path",
+            "description": "ID of basket to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/Basket"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Basket not found"
+          }
+        }
+      }
+    },
     "/baskets/{basketId}": {
       "get": {
         "tags": ["basket"],
@@ -3173,6 +4026,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Basket"
             }
           },
@@ -3204,6 +4058,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/BasketDTO"
             }
           }
@@ -3212,6 +4067,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/BasketWithoutJoins"
             }
           },
@@ -3441,6 +4297,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CheckoutDTO"
             }
           }
@@ -3486,6 +4343,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Checkout"
             }
           },
@@ -3515,13 +4373,28 @@
             "in": "body",
             "name": "body",
             "description": "",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "totalAmount": {
+                  "type": "number"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "comment": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CheckoutWithoutJoins"
             }
           },
@@ -3703,6 +4576,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/OrderProduct"
             }
           },
@@ -3808,6 +4682,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/QuestionDTO"
             }
           }
@@ -3860,6 +4735,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Question"
             }
           },
@@ -3898,6 +4774,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/QuestionDTO"
             }
           }
@@ -3906,6 +4783,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Question"
             }
           },
@@ -3947,11 +4825,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful deleted",
-            "schema": {
-              "type": "object",
-              "$ref": "#/definitions/Question"
-            }
+            "description": "Successful deleted"
           },
           "401": {
             "description": "Unauthorized"
@@ -3986,6 +4860,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ReactionQuestion"
             }
           }
@@ -4155,6 +5030,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ReviewDTO"
             }
           }
@@ -4207,6 +5083,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Review"
             }
           },
@@ -4245,6 +5122,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ReviewDTO"
             }
           }
@@ -4253,6 +5131,7 @@
           "200": {
             "description": "successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ReviewWithoutJoins"
             }
           },
@@ -4370,6 +5249,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/ReviewReaction"
             }
           }
@@ -4461,6 +5341,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CreateQuestionCommentDTO"
             }
           }
@@ -4529,6 +5410,68 @@
             "description": "Reaction not found"
           }
         }
+      },
+      "put": {
+        "tags": ["question"],
+        "summary": "Updates comment",
+        "description": "Updateds question comments by Id",
+        "operationId": "updateQuestionComment",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID of comment to return",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token or user-token"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "reviewId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Comment request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/question-comments/reaction": {
@@ -4552,6 +5495,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CommentReaction"
             }
           }
@@ -4643,6 +5587,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/CreateCommentDTO"
             }
           }
@@ -4709,6 +5654,68 @@
           },
           "404": {
             "description": "Reaction not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["comment"],
+        "summary": "Updates comment",
+        "description": "Updateds comments by Id",
+        "operationId": "updateComment",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID of comment to return",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token or user-token"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "reviewId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Comment request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -4856,14 +5863,6 @@
         "description": "",
         "operationId": "createWishlist",
         "produces": ["application/json"],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "",
-            "required": false
-          }
-        ],
         "responses": {
           "201": {
             "description": "successful created",
@@ -4902,6 +5901,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Wishlist"
             }
           },
@@ -4933,6 +5933,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Wishlist"
             }
           }
@@ -5030,16 +6031,29 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "successful updated",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Product"
+              "type": "object",
+              "properties": {
+                "raw": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": ""
+                },
+                "affected": {
+                  "type": "integer",
+                  "description": "qty of updated raws"
+                }
               }
             }
           },
           "400": {
-            "description": "Invalid ID supplied"
+            "description": "Invalid Wishlist request"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "404": {
             "description": "Wishlist not found"
@@ -5064,6 +6078,54 @@
                 "$ref": "#/definitions/Slide"
               }
             }
+          }
+        }
+      },
+      "post": {
+        "tags": ["slide"],
+        "summary": "Create a slide",
+        "description": "",
+        "operationId": "createSlide",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "description": "admin-token"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/Slide"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Size request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       },
@@ -5136,6 +6198,7 @@
           "200": {
             "description": "Successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Slide"
             }
           },
@@ -5151,7 +6214,7 @@
     "/advertisements": {
       "get": {
         "tags": ["advertisement"],
-        "summary": "Get array of advertisements",
+        "summary": "Get object of advertisements in string mode",
         "description": "",
         "operationId": "getAdvertisements",
         "consumes": ["application/json"],
@@ -5172,7 +6235,7 @@
     "/advertisements/{advertisementId}": {
       "get": {
         "tags": ["advertisement"],
-        "summary": "Find advertisement by id",
+        "summary": "Find Get object of advertisements in string mode by id",
         "operationId": "findAdvertisementById",
         "consumes": ["application/json"],
         "produces": ["application/json"],
@@ -5189,6 +6252,7 @@
           "200": {
             "description": "Successful operation",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Advertisement"
             }
           },
@@ -5227,6 +6291,7 @@
             "description": "",
             "required": true,
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Advertisement"
             }
           }
@@ -5235,6 +6300,7 @@
           "200": {
             "description": "Successful updated",
             "schema": {
+              "type": "object",
               "$ref": "#/definitions/Advertisement"
             }
           },
@@ -5465,6 +6531,9 @@
         "name": {
           "type": "string"
         },
+        "desc": {
+          "type": "string"
+        },
         "image": {
           "type": "string"
         },
@@ -5530,6 +6599,9 @@
         "name": {
           "type": "string"
         },
+        "desc": {
+          "type": "string"
+        },
         "image": {
           "type": "string"
         },
@@ -5570,6 +6642,9 @@
       "required": ["name", "parameters", "url"],
       "properties": {
         "name": {
+          "type": "string"
+        },
+        "desc": {
           "type": "string"
         },
         "image": {
@@ -5970,7 +7045,6 @@
         }
       }
     },
-
     "Size": {
       "required": ["name", "url"],
       "properties": {
@@ -6020,7 +7094,6 @@
         }
       }
     },
-
     "Image": {
       "properties": {
         "id": {
@@ -6038,6 +7111,19 @@
         },
         "size": {
           "type": "integer"
+        }
+      }
+    },
+    "ImageResponse": {
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Image"
+          }
+        },
+        "length": {
+          "type": "number"
         }
       }
     },
@@ -6159,7 +7245,7 @@
       }
     },
     "Basket": {
-      "required": ["id", "orderProducts", "createdAt", "updatedAt"],
+      "required": ["orderProducts"],
       "properties": {
         "id": {
           "type": "string",
@@ -6233,7 +7319,6 @@
       }
     },
     "BasketDTO": {
-      "required": [],
       "properties": {
         "id": {
           "type": "string",
@@ -6353,7 +7438,7 @@
       }
     },
     "OrderProduct": {
-      "required": ["id", "product", "inBasket"],
+      "required": ["product", "inBasket"],
       "properties": {
         "id": {
           "type": "string",
@@ -6370,6 +7455,9 @@
         "qty": {
           "type": "integer",
           "minimum": 1
+        },
+        "productSize": {
+          "type": "string"
         },
         "productPrice": {
           "type": "integer",
@@ -6404,6 +7492,9 @@
           "type": "integer",
           "minimum": 1
         },
+        "productSize": {
+          "type": "string"
+        },
         "productVariantId": {
           "type": "string"
         }
@@ -6434,6 +7525,32 @@
         "inBasket": {
           "type": "object",
           "$ref": "#/definitions/Basket"
+        }
+      }
+    },
+    "NewsDTO": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "post": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "showOnMain": {
+          "type": "boolean"
         }
       }
     },
@@ -6583,6 +7700,19 @@
         }
       }
     },
+    "QuestionResponse": {
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        },
+        "length": {
+          "type": "number"
+        }
+      }
+    },
     "ReviewWithoutJoins": {
       "properties": {
         "id": {
@@ -6634,6 +7764,87 @@
         }
       }
     },
+    "SubscribersResponse": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "SubscriberDTO": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "MailingsResponse": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "html": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      }
+    },
+    "MailingDTO": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "html": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      }
+    },
+    "EmailTemplateForOneDTO": {
+      "required": ["to", "html", "subject"],
+      "properties": {
+        "to": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      }
+    },
+    "EmailTemplateSelectedDTO": {
+      "required": ["mailingId", "subscribers"],
+      "properties": {
+        "mailingId": {
+          "type": "string"
+        },
+        "subscribers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/SubscriberDTO"
+          }
+        }
+      }
+    },
     "SigninDTO": {
       "type": "object",
       "required": ["email", "password"],
@@ -6661,6 +7872,9 @@
         },
         "password": {
           "type": "string"
+        },
+        "isSubscribed": {
+          "type": "boolean"
         }
       }
     },
@@ -6724,6 +7938,9 @@
         "role": {
           "type": "string"
         },
+        "image": {
+          "type": "string"
+        },
         "createdAt": {
           "type": "string"
         },
@@ -6732,6 +7949,7 @@
         }
       }
     },
+
     "Comment": {
       "properties": {
         "id": {
@@ -6823,35 +8041,47 @@
             "type": "object",
             "$ref": "#/definitions/WishlistProduct"
           }
+        },
+        "products": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/Product"
+          }
         }
       }
     },
+
     "CreateCommentDTO": {
-      "userId": {
-        "type": "string",
-        "readOnly": true
-      },
-      "text": {
-        "type": "string",
-        "readOnly": true
-      },
-      "reviewId": {
-        "type": "string",
-        "readOnly": true
+      "properties": {
+        "userId": {
+          "type": "string",
+          "readOnly": true
+        },
+        "text": {
+          "type": "string",
+          "readOnly": true
+        },
+        "reviewId": {
+          "type": "string",
+          "readOnly": true
+        }
       }
     },
     "CreateQuestionCommentDTO": {
-      "userId": {
-        "type": "string",
-        "readOnly": true
-      },
-      "text": {
-        "type": "string",
-        "readOnly": true
-      },
-      "questionId": {
-        "type": "string",
-        "readOnly": true
+      "properties": {
+        "userId": {
+          "type": "string",
+          "readOnly": true
+        },
+        "text": {
+          "type": "string",
+          "readOnly": true
+        },
+        "questionId": {
+          "type": "string",
+          "readOnly": true
+        }
       }
     },
     "WishlistProduct": {
@@ -6887,14 +8117,54 @@
         "id": {
           "type": "string"
         },
-        "image": {
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "NewsPosts": {
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/News"
+          }
+        },
+        "length": {
+          "type": "number"
+        }
+      }
+    },
+    "News": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
           "type": "string"
         },
         "description": {
           "type": "string"
         },
-        "link": {
+        "post": {
           "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "showOnMain": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "readOnly": true
         }
       }
     },

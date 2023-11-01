@@ -5,6 +5,7 @@ export { Review, Comment, ReactionComment, ReactionReview } from './reviews/';
 export { Question, QuestionComment, QuestionReactionComment, ReactionQuestion } from './questions';
 export { Wishlist, WishlistProduct } from './wishlists';
 export { Slide, Advertisement } from './banners';
+export { News } from './news/news';
 export { Basket, OrderProduct, Address, Checkout, Subscription } from './orders';
 export {
   Brand,

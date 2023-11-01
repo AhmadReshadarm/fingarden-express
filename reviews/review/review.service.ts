@@ -26,7 +26,7 @@ export class ReviewService {
       productId,
       userId,
       showOnMain,
-      sortBy = 'productId',
+      sortBy = 'createdAt',
       orderBy = 'DESC',
       merge = 'true',
       offset = 0,
@@ -57,7 +57,7 @@ export class ReviewService {
     };
   }
 
-  async getReview(id: string, authToken: string): Promise<ReviewDTO> {
+  async getReview(id: string): Promise<any> {
     const review = await this.reviewRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.comments', 'comments')
@@ -65,7 +65,7 @@ export class ReviewService {
       .where('review.id = :id', { id: id })
       .getOneOrFail();
 
-    return await this.mergeReviewUserId(review, authToken);
+    return await this.mergeReviewUserId(review);
   }
 
   async getUserById(id: string): Promise<UserDTO | undefined> {
@@ -102,6 +102,25 @@ export class ReviewService {
     }
   }
 
+  async getCheckoutByUserId(authToken: string): Promise<ProductDTO | undefined> {
+    // req.headers.authorization!
+    try {
+      let reqInstance = axios.create({
+        headers: {
+          Authorization: authToken,
+        },
+      });
+
+      const res = await reqInstance.get(`${process.env.CHECKOUT_DB}/checkouts`);
+
+      return res.data;
+    } catch (e: any) {
+      if (e.name !== 'AxiosError') {
+        throw new Error(e);
+      }
+    }
+  }
+
   async getNewReviewId(): Promise<string> {
     const lastElement = await this.reviewRepository.find({
       order: { id: 'DESC' },
@@ -120,15 +139,20 @@ export class ReviewService {
     return lastElement[0] ? String(+lastElement[0].id + 1) : String(1);
   }
 
-  async createReview(newReview: Review, authToken: string): Promise<ReviewDTO> {
-    if (!(await this.getProductById(newReview.productId))) {
-      throw new CustomExternalError([ErrorCode.PRODUCT_NOT_FOUND], HttpStatus.NOT_FOUND);
-    }
+  async createReview(newReview: Review): Promise<ReviewDTO> {
+    // const product = await this.getProductById(newReview.productId);
+    // if (!product) {
+    //   throw new CustomExternalError([ErrorCode.PRODUCT_NOT_FOUND], HttpStatus.NOT_FOUND);
+    // }
 
+    // const isReviewAlreadyPublished = !!product?.reviews?.find(review => review.user?.id == newReview.userId);
+    // if (isReviewAlreadyPublished) {
+    //   throw new CustomExternalError([ErrorCode.DUPLICATE_ENTRY], HttpStatus.CONFLICT);
+    // }
     newReview.id = await this.getNewReviewId();
 
     const created = await this.reviewRepository.save(newReview);
-    const fullReview = await this.getReview(created.id, authToken);
+    const fullReview = await this.getReview(created.id);
 
     return fullReview;
   }
@@ -175,10 +199,17 @@ export class ReviewService {
         id: Equal(id),
       },
     });
+    // const images = review.images ? review.images.split(', ') : [];
+    // images.map(async fileName => {
+    //   await axios.delete(`${process.env.IMAGE_DB}/images/inner/${fileName}`).catch(error => {
+    //     console.log(error);
+    //   });
+    // });
 
-    await this.isUserReviewOwner(review, user);
-
-    return this.reviewRepository.remove(review);
+    this.isUserReviewOwner(review, user);
+    const fullReview = await this.getReview(review.id);
+    await this.reviewRepository.remove(review);
+    return fullReview;
   }
 
   async removeReaction(id: string, user: UserAuth) {
@@ -210,12 +241,12 @@ export class ReviewService {
 
   async mergeReviews(queryBuilder: SelectQueryBuilder<Review>) {
     const reviews = await queryBuilder.getMany();
-    const result = reviews.map(async review => await this.mergeReviewUserId(review, ''));
+    const result = reviews.map(async review => await this.mergeReviewUserId(review));
 
     return Promise.all(result);
   }
 
-  async mergeReviewUserId(review: Review, authToken: string): Promise<ReviewDTO> {
+  async mergeReviewUserId(review: Review): Promise<ReviewDTO> {
     return {
       id: review.id,
       rating: review.rating,

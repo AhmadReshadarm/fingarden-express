@@ -4,7 +4,7 @@ import { User } from '../../core/entities';
 import { Role } from '../../core/enums/roles.enum';
 import { UserQueryDTO } from '../auth.dtos';
 import { PaginationDTO } from '../../core/lib/dto';
-
+import axios from 'axios';
 @singleton()
 export class UserService {
   private userRepository: Repository<User>;
@@ -119,5 +119,12 @@ export class UserService {
     });
 
     return this.userRepository.remove(user);
+  }
+  async subscribeToNewsletter(name: string, email: string): Promise<any> {
+    try {
+      await axios.post(`${process.env.MAILER_DB}/subscribes`, { name: name, email: email });
+    } catch (e: any) {
+      console.log(e);
+    }
   }
 }
