@@ -1,4 +1,4 @@
-FROM node:15-alpine
+FROM node:18-alpine
 
 COPY ./wait-for /usr/bin/wait-for
 RUN chmod +x /usr/bin/wait-for

@@ -81,6 +81,13 @@ services:
     command: sh -c 'wait-for db:3306 -- npm run start'
     depends_on:
       - db
+  news:
+    build:
+      context: .
+      dockerfile: ./news/Dockerfile
+    command: sh -c 'wait-for db:3306 -- npm run start'
+    depends_on:
+      - db
   mailer:
     build:
       context: .
