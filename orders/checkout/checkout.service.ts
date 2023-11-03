@@ -11,18 +11,22 @@ import { HttpStatus } from '../../core/lib/http-status';
 import { scope } from '../../core/middlewares/access.user';
 import { OrderProductService } from '../../orders/orderProducts/orderProduct.service';
 import { CheckoutDTO, CheckoutQueryDTO, UserAuth, UserDTO } from '../order.dtos';
+import { createTransport, Transporter } from 'nodemailer';
+import { MAIL_FROM, transportConfig } from './config';
+import { MailOptionsDTO } from 'orders/mailer.dtos';
 
 @singleton()
 export class CheckoutService {
   private checkoutRepository: Repository<Checkout>;
   private subscribersRepository: Repository<Subscription>;
-
+  private smptTransporter: Transporter;
   constructor(
     dataSource: DataSource,
     private orderProductService: OrderProductService,
   ) {
     this.checkoutRepository = dataSource.getRepository(Checkout);
     this.subscribersRepository = dataSource.getRepository(Subscription);
+    this.smptTransporter = createTransport(transportConfig);
   }
 
   async getCheckouts(
@@ -284,5 +288,28 @@ export class CheckoutService {
       comment: checkout.comment,
       status: checkout.status,
     };
+  }
+
+  async sendMail(options: MailOptionsDTO) {
+    this.validateMailOptions(options);
+
+    const result = await this.smptTransporter.sendMail({
+      ...options,
+      from: MAIL_FROM,
+    });
+
+    if (result.response === '250 2.0.0 Ok: queued') {
+      return {
+        status: HttpStatus.OK,
+        response: {
+          message: `Mail was successfully sent to ${options.to}`,
+        },
+      };
+    }
+  }
+  validateMailOptions(options: MailOptionsDTO) {
+    if (!options.to || !options.html || !options.subject) {
+      throw new CustomExternalError([ErrorCode.MAIL_OPTIONS], HttpStatus.BAD_REQUEST);
+    }
   }
 }

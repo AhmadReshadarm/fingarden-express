@@ -9,40 +9,40 @@ apiEndpoints:
     host: '*'
     paths: '*'
   auth:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/users*', '/auth*', '/admin*']
   catalog:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/products*', '/tags*', '/sizes*', '/categories*', '/brands*', '/colors*', '/parameters*']
   images:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/images*']
   orders:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/addresses*', '/baskets*', '/checkouts*', '/order-products*', '/payments*']
   reviews:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/reviews*', '/comments*']
   questions:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/questions*', '/question-comments*']
   swagger:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/api-docs*']
   wishlists:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/wishlists*']
   banners:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/slides*', '/advertisements*']
   analytics:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/analytics*']
   news:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/news*']
   mailer:
-    host: '95.165.95.110'
+    host: ${HOST}
     paths: ['/subscribe*', '/mailings*']
 serviceEndpoints:
   authSrv:

@@ -103,6 +103,18 @@ export class CheckoutController {
     // }
   }
 
+  @Post('direct')
+  async checkoutWithoutRegister(req: Request, resp: Response) {
+    try {
+      const result = await this.checkoutService.sendMail(req.body);
+      req.body.to = `info@fingarden.ru`;
+      await this.checkoutService.sendMail(req.body);
+      resp.status(result!.status).json(result!.response);
+    } catch (error) {
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+    }
+  }
+
   @Post('subscribe')
   @Middleware([verifyToken, isAdmin])
   async createSubscriber(req: Request, resp: Response, next: NextFunction) {
