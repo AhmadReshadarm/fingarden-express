@@ -63,8 +63,6 @@ serviceEndpoints:
     url: ${WISHLISTS_DB}
   bannersSrv:
     url: ${BANNERS_DB}
-  analyticsSrv:
-    url: ${ANALYTICS_DB}
   newsSrv:
     url: ${NEWS_DB}
   mailerSrv:
@@ -152,14 +150,6 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: bannersSrv
-              changeOrigin: true
-  pipeAnalytic:
-    apiEndpoints:
-      - analytics
-    policies:
-      - proxy:
-          - action:
-              serviceEndpoint: analyticsSrv
               changeOrigin: true
   pipeNews:
     apiEndpoints:
