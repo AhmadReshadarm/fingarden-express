@@ -7,7 +7,7 @@ import { Checkout, Subscription } from '../../core/entities';
 import { HttpStatus } from '../../core/lib/http-status';
 import { validation } from '../../core/lib/validator';
 import { isAdmin, isUser, verifyToken } from '../../core/middlewares';
-import { createInvoice } from '../../orders/functions/createInvoice';
+import { generateInvoiceTemplet } from '../../orders/functions/createInvoice';
 import { sendInvoice } from '../../orders/functions/send.mail';
 import { CheckoutService } from './checkout.service';
 import { invoiceTamplate } from '../functions/invoice.tamplate';
@@ -69,38 +69,36 @@ export class CheckoutController {
     } catch (error) {
       resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
-    // try {
-    //   const invoiceData: any = await createInvoice(created!, jwt.name);
-    //   const invoice = invoiceTamplate(invoiceData);
-    //   sendInvoice(JSON.parse(invoice), jwt.email);
-    //   console.log('invoice send succsfuly');
-    // } catch (error) {
-    //   console.log(`sending invoice faild: ${error}`);
-    // }
-    // let payload;
-    // let subscrition;
-    // try {
-    //   subscrition = await this.checkoutService.getSubscribers();
-    //   payload = JSON.stringify({
-    //     title: `Заказ №: ${created?.id}`,
-    //     message: `Сума: ${created?.totalAmount}`,
-    //     url: `https:wuluxe.ru/admin/checkouts/${created?.id}`,
-    //   });
-    // } catch (error) {
-    //   console.log(`getting subscribers faild: ${error}`);
-    // }
-    // if (!subscrition || subscrition.length === 0) return;
-    // const publicKey = 'BHgZBD9sPAjR-YEMwJoULsE5xve8Ezj5XrAw155-KkwksuL6S2CnJt-dddWJg_Q9r_oAEJzQBeOG9oMXz9Sir9Y';
-    // const privateKey = 'L7DfNF3YlKeMgxWyGl1eJ-em7L7Bsh0DxfNdE4kyeY0';
-    // webpush.setVapidDetails('mailto:checkout@wuluxe.ru', publicKey, privateKey);
-    // for (let i = 0; i < subscrition.length; i++) {
-    //   try {
-    //     webpush.sendNotification(JSON.parse(`${subscrition[i].subscriber}`), payload);
-    //   } catch (error) {
-    //     await this.checkoutService.removeSubscriber(subscrition[i].id);
-    //     console.log(`sending notification faild: ${error}`);
-    //   }
-    // }
+    try {
+      const payload = {
+        receiverName: req.body.address.receiverName,
+        receiverPhone: req.body.address.receiverPhone,
+        receiverEmail: jwt.email,
+        address: req.body.address.address,
+        roomOrOffice: req.body.address.roomOrOffice,
+        door: req.body.address.door,
+        floor: req.body.address.floor,
+        rignBell: req.body.address.rignBell,
+        zipCode: req.body.address.zipCode,
+        comment: req.body.comment,
+        cart: req.body.cart,
+      };
+      const invoiceData: string = generateInvoiceTemplet(payload);
+      const emailUserPayload = {
+        to: jwt.email,
+        subject: `Заказ № ${created.id} на iville.ru`,
+        html: invoiceData,
+      };
+      const emailAdminPayload = {
+        to: `info@fingarden.ru`,
+        subject: `Заказ № ${created.id} на iville.ru`,
+        html: invoiceData,
+      };
+      await this.checkoutService.sendMail(emailUserPayload);
+      await this.checkoutService.sendMail(emailAdminPayload);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @Post('direct')

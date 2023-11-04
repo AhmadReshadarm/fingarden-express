@@ -14,7 +14,9 @@ export class NewsController {
 
       if (!news.length) {
         await this.newsService.createNews({
-          post: '{"blocks":[{"key":"44ern","text":"this","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+          title: 'news title',
+          url: 'news_url',
+          post: '{"blocks":[{"key":"44ern","text":"news","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           showOnMain: true,
         } as any);
       }
@@ -28,7 +30,7 @@ export class NewsController {
 
       resp.json(news);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
@@ -40,7 +42,7 @@ export class NewsController {
 
       resp.status(HttpStatus.OK).json(news);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
@@ -64,7 +66,9 @@ export class NewsController {
 
       if (news.length == 0) {
         const initiated = await this.newsService.createNews({
-          post: '{"blocks":[{"key":"44ern","text":"this","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+          title: 'news title',
+          url: 'news_url',
+          post: '{"blocks":[{"key":"44ern","text":"news","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           showOnMain: true,
         } as any);
 
