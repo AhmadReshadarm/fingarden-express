@@ -14,7 +14,7 @@ export class News {
   @Column({ unique: true })
   url: string;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   description: string;
 
   @IsNotEmpty()
