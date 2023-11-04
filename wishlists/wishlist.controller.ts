@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import { singleton } from 'tsyringe';
 import { Controller, Delete, Get, Middleware, Post, Put } from '../core/decorators';
-import { Wishlist } from '../core/entities';
 import { HttpStatus } from '../core/lib/http-status';
-import { validation } from '../core/lib/validator';
 import { isAdmin, verifyToken } from '../core/middlewares';
 import { WishlistService } from './wishlist.service';
 
@@ -30,7 +28,7 @@ export class WishlistController {
 
       resp.json(wishlist);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
@@ -42,7 +40,7 @@ export class WishlistController {
 
       resp.json(products);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
@@ -53,7 +51,7 @@ export class WishlistController {
 
       resp.status(HttpStatus.CREATED).json(created);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong ${error}` });
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
@@ -65,7 +63,7 @@ export class WishlistController {
 
       resp.status(HttpStatus.CREATED).json(updated);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`somthing went wrong ${error}`);
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 
@@ -78,7 +76,7 @@ export class WishlistController {
 
       resp.status(HttpStatus.OK).json(removed);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`somthing went wrong ${error}`);
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 }
