@@ -7,6 +7,12 @@ declare global {
       MYSQL_HOST: string;
       MYSQL_ROOT_PASSWORD: string;
       MYSQL_DATABASE: string;
+
+      MAIL_HOST: string;
+      MAIL_PORT: string;
+      MAIL_USER: string;
+      MAIL_PASSWORD: string;
+      MAIL_FROM: string;
     }
   }
 }
