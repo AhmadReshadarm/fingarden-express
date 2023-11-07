@@ -5,7 +5,7 @@ import { Address } from '../../core/entities';
 import { HttpStatus } from '../../core/lib/http-status';
 import { validation } from '../../core/lib/validator';
 import { AddressService } from './address.service';
-import { isUser, verifyToken } from '../../core/middlewares';
+import { isAdmin, isUser, verifyToken } from '../../core/middlewares';
 import { Role } from '../../core/enums/roles.enum';
 
 @singleton()
@@ -39,6 +39,17 @@ export class AddressController {
   async createAddress(req: Request, resp: Response) {
     const newAddress = new Address(req.body);
     newAddress.userId = resp.locals.user.id;
+
+    await validation(newAddress);
+    const created = await this.addressService.createAddress(newAddress);
+
+    resp.status(HttpStatus.CREATED).json({ id: created.id });
+  }
+
+  @Post('direct')
+  @Middleware([verifyToken, isAdmin])
+  async createAddressDirect(req: Request, resp: Response) {
+    const newAddress = new Address(req.body);
 
     await validation(newAddress);
     const created = await this.addressService.createAddress(newAddress);
