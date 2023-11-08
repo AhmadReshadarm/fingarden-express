@@ -102,11 +102,13 @@ export class UserController {
     const { email } = req.params;
     try {
       const user = await this.userService.getByEmail(email);
+
       if (!user) {
         resp.status(HttpStatus.NOT_FOUND).json({ message: 'User not fount' });
         return;
       }
-      resp.status(HttpStatus.OK).json(user);
+      const { password, ...others } = user;
+      resp.status(HttpStatus.OK).json(others);
     } catch (error) {
       resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `somthing went wrong: ${error}` });
     }
