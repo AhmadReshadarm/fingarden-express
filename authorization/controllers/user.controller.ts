@@ -96,14 +96,15 @@ export class UserController {
     }
   }
 
-  @Get('get-by-email')
+  @Get('get-by-email/:email')
   @Middleware([verifyToken, isAdmin])
   async getUserByEmail(req: Request, resp: Response) {
-    const { email } = req.body;
+    const { email } = req.params;
     try {
       const user = await this.userService.getByEmail(email);
       if (!user) {
         resp.status(HttpStatus.NOT_FOUND).json({ message: 'User not fount' });
+        return;
       }
       resp.status(HttpStatus.OK).json(user);
     } catch (error) {
