@@ -58,8 +58,11 @@ export class CheckoutController {
   @Middleware([verifyToken, isUser])
   async createCheckout(req: Request, resp: Response) {
     const newCheckout = new Checkout(req.body);
-    newCheckout.userId = resp.locals.user.id;
-    const { jwt } = resp.locals;
+    const { user } = resp.locals;
+    if (user.role !== Role.Admin) {
+      newCheckout.userId = user.id;
+    }
+
     let created: any;
 
     try {
@@ -73,7 +76,7 @@ export class CheckoutController {
       const payload = {
         receiverName: req.body.address.receiverName,
         receiverPhone: req.body.address.receiverPhone,
-        receiverEmail: jwt.email,
+        receiverEmail: user.role !== Role.Admin ? user.email : req.body.address.receiverEmail,
         address: req.body.address.address,
         roomOrOffice: req.body.address.roomOrOffice,
         door: req.body.address.door,
@@ -85,7 +88,7 @@ export class CheckoutController {
       };
       const invoiceData: string = generateInvoiceTemplet(payload);
       const emailUserPayload = {
-        to: jwt.email,
+        to: user.role !== Role.Admin ? user.email : req.body.address.receiverEmail,
         subject: `Заказ № ${created.id} на iville.ru`,
         html: invoiceData,
       };

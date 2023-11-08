@@ -72,7 +72,7 @@ export class BasketController {
       const updated = await this.basketService.updateBasket(id, req.body);
       resp.status(HttpStatus.OK).json(updated);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`somthing went wrong ${error}`);
+      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
 

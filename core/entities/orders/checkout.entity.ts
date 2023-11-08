@@ -54,6 +54,7 @@ export class Checkout {
 
   constructor(args?: {
     // paymentId: string;
+    userId: string;
     totalAmount: number;
     address: Address;
     basket: Basket;
@@ -63,6 +64,7 @@ export class Checkout {
   }) {
     if (args) {
       // this.paymentId = args.paymentId;
+      this.userId = args.userId;
       this.totalAmount = args.totalAmount;
       this.address = args.address;
       this.basket = args.basket;
