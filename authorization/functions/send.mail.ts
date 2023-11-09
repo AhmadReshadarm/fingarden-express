@@ -1,13 +1,14 @@
 import nodemailer from 'nodemailer';
 import { signupEmailTemplate, resetPswEmailTemplate } from './email.template';
 
+const baseURL = 'https://ivill.ru';
 const sendMail = (token: any, user: any) => {
   let transporter = nodemailer.createTransport({
     host: 'smtp.beget.com',
     port: 465,
     secure: true,
     auth: {
-      user: 'info@fingarden.ru',
+      user: 'info@ivill.ru',
       pass: process.env.EMAIL_SERVICE_SECRET_KEY,
     },
     tls: {
@@ -15,11 +16,11 @@ const sendMail = (token: any, user: any) => {
       rejectUnauthorized: false,
     },
   });
-  const url = `https://fingarden.ru/profile/verify/${token}`;
+  const url = `${baseURL}/profile/verify/${token}`;
   transporter.sendMail(
     {
       to: user.email,
-      from: 'info@fingarden.ru',
+      from: 'info@ivill.ru',
       subject: `Подтверждать ${user.email}`,
       html: signupEmailTemplate(user.firstName, user.email, url),
     },
@@ -38,7 +39,7 @@ const sendMailResetPsw = (token: any, user: any) => {
     port: 465,
     secure: true,
     auth: {
-      user: 'info@fingarden.ru',
+      user: 'info@ivill.ru',
       pass: process.env.EMAIL_SERVICE_SECRET_KEY,
     },
     tls: {
@@ -46,11 +47,11 @@ const sendMailResetPsw = (token: any, user: any) => {
       rejectUnauthorized: false,
     },
   });
-  const url = `https://fingarden.ru/profile/pswreset/confirmpsw/${token}`;
+  const url = `${baseURL}/profile/pswreset/confirmpsw/${token}`;
   transporter.sendMail(
     {
       to: user.email,
-      from: 'info@fingarden.ru',
+      from: 'info@ivill.ru',
       subject: `Сбросить пароль для ${user.email}`,
       html: resetPswEmailTemplate(user.firstName, user.email, url),
     },
@@ -69,7 +70,7 @@ const sendHelpDiskMail = (userEmail: string, adminEmail: string, text: string) =
     port: 465,
     secure: true,
     auth: {
-      user: 'info@fingarden.ru',
+      user: 'info@ivill.ru',
       pass: process.env.EMAIL_SERVICE_SECRET_KEY,
     },
     tls: {
@@ -81,9 +82,9 @@ const sendHelpDiskMail = (userEmail: string, adminEmail: string, text: string) =
   transporter.sendMail(
     {
       to: adminEmail,
-      from: 'info@fingarden.ru',
+      from: 'info@ivill.ru',
       subject: `Вопрос от ${userEmail}`,
-      html: `<p>Вопрос от <a href="mailto:${userEmail}">${userEmail}</a>:</p></br><p>${text}</p>`,
+      html: `<div><p>Вопрос от <a href="mailto:${userEmail}">${userEmail}</a>:</p></div><div><p>${text}</p></div>`,
     },
     (error, info) => {
       if (error) {

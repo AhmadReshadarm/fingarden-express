@@ -182,18 +182,6 @@ export class BasketService {
           },
         });
 
-        if (!orderProduct) {
-          const orderProductData = new OrderProduct({
-            productId: basketDTO.orderProducts[counter].productId,
-            qty: basketDTO.orderProducts[counter].qty,
-            productSize: basketDTO.orderProducts[counter].productSize,
-            inBasket: basket,
-            productVariantId: basketDTO.orderProducts[counter].productVariantId,
-          });
-          const newOrderProduct = await this.orderProductService.createOrderProduct(orderProductData);
-          orderProducts.push(await this.orderProductService.mergeOrderProduct(newOrderProduct));
-        }
-
         if (orderProduct && orderProduct.qty !== basketDTO.orderProducts[counter].qty) {
           const newOrderProduct = await this.orderProductService.updateOrderProduct(
             orderProduct.id,
@@ -220,6 +208,18 @@ export class BasketService {
           );
           const curOrderProduct = orderProducts.find(orderProduct => orderProduct.id === newOrderProduct?.id)!;
           curOrderProduct.productSize = basketDTO.orderProducts[counter].productSize;
+        }
+
+        if (!orderProduct) {
+          const orderProductData = new OrderProduct({
+            productId: basketDTO.orderProducts[counter].productId,
+            qty: basketDTO.orderProducts[counter].qty,
+            productSize: basketDTO.orderProducts[counter].productSize,
+            inBasket: basket,
+            productVariantId: basketDTO.orderProducts[counter].productVariantId,
+          });
+          const newOrderProduct = await this.orderProductService.createOrderProduct(orderProductData);
+          orderProducts.push(await this.orderProductService.mergeOrderProduct(newOrderProduct));
         }
         counter = counter + 1;
         updateOrderProductDetails();
