@@ -57,7 +57,11 @@ export class CheckoutController {
   @Post()
   @Middleware([verifyToken, isUser])
   async createCheckout(req: Request, resp: Response) {
-    const newCheckout = new Checkout(req.body);
+    const checkoutPayload = {
+      ...req.body,
+    };
+    checkoutPayload.basket = req.body.basket.id;
+    const newCheckout = new Checkout(checkoutPayload);
     const { user } = resp.locals;
     if (user.role !== Role.Admin) {
       newCheckout.userId = user.id;
