@@ -108,11 +108,19 @@ export class CheckoutController {
   async checkoutWithoutRegister(req: Request, resp: Response) {
     try {
       const result = await this.checkoutService.sendMail(req.body);
-      req.body.to = `info@fingarden.ru`;
-      await this.checkoutService.sendMail(req.body);
       resp.status(result!.status).json(result!.response);
     } catch (error) {
       resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+    }
+    try {
+      const payload = {
+        to: 'info@fingarden.ru',
+        subject: req.body.subject,
+        html: req.body.html,
+      };
+      await this.checkoutService.sendMail(payload);
+    } catch (error) {
+      console.log(error);
     }
   }
 
