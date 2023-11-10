@@ -84,7 +84,7 @@ export class CheckoutController {
         rignBell: req.body.address.rignBell,
         zipCode: req.body.address.zipCode,
         comment: req.body.comment,
-        cart: req.body.cart,
+        cart: req.body.basket,
       };
       const invoiceData: string = generateInvoiceTemplet(payload);
       const emailUserPayload = {

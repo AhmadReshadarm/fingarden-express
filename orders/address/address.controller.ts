@@ -43,7 +43,7 @@ export class AddressController {
     await validation(newAddress);
     const created = await this.addressService.createAddress(newAddress);
 
-    resp.status(HttpStatus.CREATED).json({ id: created.id });
+    resp.status(HttpStatus.CREATED).json(created);
   }
 
   @Post('direct')
