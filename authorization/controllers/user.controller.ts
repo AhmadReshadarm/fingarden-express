@@ -226,7 +226,7 @@ export class UserController {
     try {
       const admins = await this.userService.getUsers({ role: Role.Admin });
       admins.rows.map(admin => {
-        sendHelpDiskMail(admin.email, email, text);
+        sendHelpDiskMail(email, admin.email, text);
       });
       resp.send(HttpStatus.OK);
     } catch (error) {
