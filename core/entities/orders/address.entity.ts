@@ -42,6 +42,7 @@ export class Address {
   checkouts: Checkout[];
 
   constructor(args?: {
+    userId: string;
     receiverName: string;
     receiverPhone: string;
     address: string;
@@ -52,6 +53,7 @@ export class Address {
     zipCode: string;
   }) {
     if (args) {
+      this.userId = args.userId;
       this.receiverName = args.receiverName;
       this.receiverPhone = args.receiverPhone;
       this.address = args.address;
