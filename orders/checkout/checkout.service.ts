@@ -293,19 +293,43 @@ export class CheckoutService {
   async sendMail(options: MailOptionsDTO) {
     this.validateMailOptions(options);
 
-    const result = await this.smptTransporter.sendMail({
-      ...options,
-      from: MAIL_FROM,
-    });
+    // const result = await this.smptTransporter.sendMail({
+    //   ...options,
+    //   from: MAIL_FROM,
+    // });
 
-    if (result.response === '250 2.0.0 Ok: queued') {
-      return {
-        status: HttpStatus.OK,
-        response: {
-          message: `Mail was successfully sent to ${options.to}`,
-        },
-      };
-    }
+    // if (result.response === '250 2.0.0 Ok: queued') {
+    //   return {
+    //     status: HttpStatus.OK,
+    //     response: {
+    //       message: `Mail was successfully sent to ${options.to}`,
+    //     },
+    //   };
+    // }
+    let result: any;
+    await this.smptTransporter.sendMail(
+      {
+        ...options,
+        from: MAIL_FROM,
+      },
+      (err, info) => {
+        if (err) {
+          result = {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            response: {
+              message: `Mail was unsuccessfull to be sent to ${options.to}, ${err}`,
+            },
+          };
+        }
+        result = {
+          status: HttpStatus.OK,
+          response: {
+            message: `Mail was unsuccessfull to be sent to ${options.to}`,
+          },
+        };
+      },
+    );
+    return result;
   }
   validateMailOptions(options: MailOptionsDTO) {
     if (!options.to || !options.html || !options.subject) {
