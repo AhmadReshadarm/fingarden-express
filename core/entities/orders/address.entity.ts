@@ -22,20 +22,20 @@ export class Address {
   @Column()
   address: string;
 
-  @Column()
+  @Column({ nullable: true })
   roomOrOffice: string;
 
-  @Column()
+  @Column({ nullable: true })
   door: string;
 
-  @Column()
+  @Column({ nullable: true })
   floor: string;
 
-  @Column()
+  @Column({ nullable: true })
   rignBell: string;
 
   // @IsNotEmpty()
-  @Column()
+  @Column({ nullable: true })
   zipCode: string;
 
   @OneToMany(() => Checkout, checkout => checkout.address)

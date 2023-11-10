@@ -1,7 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Basket } from './basket.entity';
 import { IsNotEmpty, Min } from 'class-validator';
-import { ProductVariant } from '../catalog';
 
 @Entity()
 export class OrderProduct {

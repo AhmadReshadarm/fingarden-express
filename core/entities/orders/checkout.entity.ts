@@ -40,7 +40,7 @@ export class Checkout {
   @Column('text', { nullable: true })
   comment: string;
 
-  @Column()
+  @Column({ default: false })
   leaveNearDoor: boolean;
 
   @CreateDateColumn()

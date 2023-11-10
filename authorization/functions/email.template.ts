@@ -16,7 +16,7 @@ const resetPswEmailTemplate = (userName: string, email: string, confirmationUrl:
       <h1>Здравствуйте <b>${userName}</b></h1>
        <br />
       <span >
-       Для сброса пароля нажмите на ссылку ниже, она перенаправит вас на страницу сброса пароля на нашем сайте <a href="https://fingarden.ru">fingarden.ru</a>
+       Для сброса пароля нажмите на ссылку ниже, она перенаправит вас на страницу сброса пароля на нашем сайте <a href="https://ivill.ru">ivill.ru</a>
       </span>
        <br />
       <a target="_blank" href="${confirmationUrl}">Нажмите здесь, чтобы сбросить пароль для ${email}</a>
