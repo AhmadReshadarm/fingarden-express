@@ -51,7 +51,7 @@ export class SizeController {
     const { id } = req.params;
     const size = await this.sizeService.getSizesByIds([id]);
     const hasData = await this.productService.getProducts({ size: size[0].url });
-    if (hasData) {
+    if (hasData.length > 0) {
       resp.status(HttpStatus.FORBIDDEN).json(hasData);
       return;
     }

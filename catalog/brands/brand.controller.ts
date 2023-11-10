@@ -54,7 +54,7 @@ export class BrandController {
 
     const hasData = await this.productService.getProducts({ brand: brand.url });
 
-    if (hasData) {
+    if (hasData.length > 0) {
       resp.status(HttpStatus.FORBIDDEN).json(hasData);
       return;
     }

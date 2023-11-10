@@ -70,7 +70,7 @@ export class ColorController {
       const color = await this.colorService.getColorsByIds([id]);
       const hasData = await this.productService.getProducts({ color: color[0].url });
 
-      if (hasData) {
+      if (hasData.length > 0) {
         resp.status(HttpStatus.FORBIDDEN).json(hasData);
         return;
       }

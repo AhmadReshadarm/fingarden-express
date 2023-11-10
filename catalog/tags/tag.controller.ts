@@ -56,7 +56,7 @@ export class TagController {
     const { id } = req.params;
     const tag = await this.tagService.getTagsByIds([id]);
     const hasData = await this.productService.getProducts({ tag: tag[0].url });
-    if (hasData) {
+    if (hasData.length > 0) {
       resp.status(HttpStatus.FORBIDDEN).json(hasData);
       return;
     }
