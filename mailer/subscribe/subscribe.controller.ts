@@ -103,12 +103,13 @@ export class SubscribeController {
   @Post('call')
   @Middleware([sendAdminEmailToCallLimiter])
   async sendAdminEmailToCall(req: Request, resp: Response) {
+    let result;
     try {
-      const result = await this.mailingService.sendMail(req.body);
+      result = await this.mailingService.sendMail(req.body);
 
       resp.status(result!.status).json(result!.response);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+      resp.status(HttpStatus.CREATED).json(result);
     }
   }
 

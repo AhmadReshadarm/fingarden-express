@@ -106,11 +106,13 @@ export class CheckoutController {
 
   @Post('direct')
   async checkoutWithoutRegister(req: Request, resp: Response) {
+    let result;
+    let adminResult;
     try {
-      const result = await this.checkoutService.sendMail(req.body);
+      result = await this.checkoutService.sendMail(req.body);
       resp.status(result!.status).json(result!.response);
     } catch (error) {
-      resp.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+      resp.status(HttpStatus.CREATED).json(result);
     }
     try {
       const payload = {
@@ -118,9 +120,9 @@ export class CheckoutController {
         subject: req.body.subject,
         html: req.body.html,
       };
-      await this.checkoutService.sendMail(payload);
+      adminResult = await this.checkoutService.sendMail(payload);
     } catch (error) {
-      console.log(error);
+      console.log(adminResult);
     }
   }
 
