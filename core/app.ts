@@ -44,6 +44,7 @@ export class App {
       }
       next();
     });
+    server.set('trust proxy', 1);
   }
 
   close(): void {
